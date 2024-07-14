@@ -10,6 +10,7 @@
 
 # Usage: ./simpleCountdown [minutes] [seconds]
 # [minutes] is the time in minutes in format -m <minute(s)>, and [seconds] is the time in seconds in format -s <second(s)>.
+# You can use either one or both of the arguments.
 
 total_seconds=0
 
