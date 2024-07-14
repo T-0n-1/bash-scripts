@@ -61,16 +61,20 @@ else
 fi
 
 # Push the possible changes to the remote repository
-if [ -n "$(git push -n)" ]; then
-    if [ -z "$(git branch -r)" ]; then
-        git push -u origin main > /dev/null 2>&1
-    else
-        git push > /dev/null 2>&1
-    fi
-    echo "Changes pushed to the remote repository."
+command=$(git push -n)
+output="Everything up-to-date"
+if [ command != output ]; then
+    echo "Pushing the changes to the remote repository..."
 else
     echo "No changes to push."
 fi
+if [ -z "$(git branch -r)" ]; then
+    git push -uq origin main
+else
+    git push -q 
+fi
+echo "--------------------------------------------------"
+echo "             All automation done!"
 echo "--------------------------------------------------"
 
 exit 0
