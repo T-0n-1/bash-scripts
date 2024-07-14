@@ -18,7 +18,11 @@ echo "----------------------------------------------------------------"
 while [ $guesses -gt 0 ]; do
     echo "You have $guesses guesses left"
     read -p "Enter your guess: " guess
-    if [ $guess -gt 100 ] || [ $guess -lt 1 ]; then
+    if ! [[ $guess =~ ^[0-9]{1,2}$ ]]; then
+        echo "Input must be a one or two-digit number."
+        echo "--+--+--+--+--+--+--+--"
+        continue
+    elif [ $guess -gt 100 ] || [ $guess -lt 1 ]; then
         echo "The number must be between 1 and 100"
         echo "--+--+--+--+--+--+--+--"
         continue
