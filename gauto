@@ -47,7 +47,7 @@ else
 fi
 
 # Check if there are any changes to commit
-if [ -n "$(git status | grep 'nothing to commit, working tree clean')" ] || [ -n "$(git status | grep 'Untracked files')" ]; then
+if [ -n "$(git add . -n)" ]; then
     echo "Adding and committing the changes..."
     echo "Enter the commit message: "
     read message
