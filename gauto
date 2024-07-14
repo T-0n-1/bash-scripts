@@ -61,20 +61,15 @@ else
 fi
 
 # Push the possible changes to the remote repository
-if [ -z "$(git branch -r)" ]; then
-    git push -u origin main 2> /dev/null
-    if [ $? -ne 0 ]; then
-        echo "No commits to push."
+if [ -n "$(git push -n)" ]; then
+    if [ -z "$(git branch -r)" ]; then
+        git push -u origin main 2> /dev/null
     else
-        echo "Changes pushed to the remote repository."
+        git push 2> /dev/null
     fi
+    echo "Changes pushed to the remote repository."
 else
-    git push 2> /dev/null
-    if [ $? -ne 0 ]; then
-        echo "No commits to push."
-    else
-        echo "Changes pushed to the remote repository."
-    fi
+    echo "No changes to push."
 fi
 echo "--------------------------------------------------"
 
