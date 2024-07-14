@@ -61,13 +61,8 @@ else
 fi
 
 # Push the possible changes to the remote repository
-command=$(git push -n)
-output="Everything up-to-date"
-if [ command != output ]; then
-    echo "Pushing the changes to the remote repository..."
-else
-    echo "No changes to push."
-fi
+echo "Git push state..."
+git push -n
 if [ -z "$(git branch -r)" ]; then
     git push -uq origin main
 else
