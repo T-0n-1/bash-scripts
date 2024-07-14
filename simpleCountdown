@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Author: Toni Mertanen
+# Created: 14.7.2024
+# Last modified: 14.7.2024
+
+# Description: This script is a simple countdown timer. 
+# It can take one to two arguments, which are the time in seconds and/or minutes. 
+# The script will then count down from the given time to zero.
+
+# Usage: ./simpleCountdown [minutes] [seconds]
+# [minutes] is the time in minutes in format -m <minute(s)>, and [seconds] is the time in seconds in format -s <second(s)>.
+
+total_seconds=0
+
+while getopts "m:s:" opt; do
+    case $opt in
+        m) total_seconds=$(( $total_seconds + $OPTARG * 60 ));;
+        s) total_seconds=$(( $total_seconds + $OPTARG ));;
+    esac
+done
+
+while [ $total_seconds -gt 0 ]; do
+    echo -ne "Time left: $total_seconds seconds\033[0K\r"
+    sleep 1
+    total_seconds=$(( $total_seconds - 1 ))
+done
+
+echo -ne "Time's up!"
+
+exit 0
