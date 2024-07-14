@@ -1,0 +1,81 @@
+#!/bin/bash
+
+# Author: Toni Mertanen
+# Created: 14.7.2024
+# Last modified: 14.7.2024
+
+# Description: This script is used to automate the process of initializing the git and creating the .gitignore, 
+# linking the local repo with the remote one, adding and committing the changes with user given message to the 
+# remote repository. It will run the necessary commands and ask for user input when needed.
+
+# Usage: ./gauto - The script will check the state of git initialization and ask for user input when needed. 
+
+# Check if the current directory is a git repository
+if [ ! -d .git ]; then
+    echo "--------------------------------------------------"
+    echo "Initializing git..."
+    git init > /dev/null 2>&1
+
+    echo "Git initialized."
+    echo "--------------------------------------------------"
+fi
+
+# Check if the local repository is linked with the remote one
+a=$(git remote)
+b=origin
+if [ "$a" != "$b" ]; then
+    echo "Linking the local repository with the remote one..."
+    echo "Enter the URL of the remote repository: "
+    read url
+    git remote add origin $url
+    echo "Local repository linked with the remote one."
+    echo "--------------------------------------------------"
+    git branch -M main
+    echo "Branch renamed to main."
+    echo "--------------------------------------------------"
+fi
+
+# Check if the .gitignore file exists
+if [ -f .gitignore ]; then
+    echo "--------------------------------------------------"
+else
+    echo "Creating .gitignore..."
+    touch .gitignore
+    echo -e "venv/\n.idea/\n.git/\nnode_modules/\n.vscode\n.DS_Store\nconfig.codekit3\n.gitignore" > .gitignore
+    echo ".gitignore created."
+    echo "--------------------------------------------------"
+fi
+
+# Check if there are any changes to commit
+if [ -n "$(git status | grep 'nothing to commit, working tree clean')" ] || [ -n "$(git status | grep 'Untracked files')" ]; then
+    echo "Adding and committing the changes..."
+    echo "Enter the commit message: "
+    read message
+    git add .
+    git commit -m "$message" > /dev/null 2>&1
+    echo "Changes added and committed."
+    echo "--------------------------------------------------"
+else
+    echo "No changes to commit."
+    echo "--------------------------------------------------"
+fi
+
+# Push the possible changes to the remote repository
+if [ -z "$(git branch -r)" ]; then
+    git push -u origin main 2> /dev/null
+    if [ $? -ne 0 ]; then
+        echo "No commits to push."
+    else
+        echo "Changes pushed to the remote repository."
+    fi
+else
+    git push 2> /dev/null
+    if [ $? -ne 0 ]; then
+        echo "No commits to push."
+    else
+        echo "Changes pushed to the remote repository."
+    fi
+fi
+echo "--------------------------------------------------"
+
+exit 0

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Author: Toni Mertanen
+# Created: 14.7.2024
+# Last Modified: 14.7.2024
+
+# Description: Guess a number game
+# Usage: ./guessNumber
+
+random_number=$((RANDOM % 100 + 1))
+guesses=7
+
+echo "Welcome to the game of Guess the Number"
+echo "You have $guesses guesses to guess the number between 1 and 100"
+echo "I will tell you if the number is higher or lower than your guess"
+echo "Good luck!"
+echo "----------------------------------------------------------------"
+while [ $guesses -gt 0 ]; do
+    echo "You have $guesses guesses left"
+    read -p "Enter your guess: " guess
+    if [ $guess -eq $random_number ]; then
+        echo "Congratulations! You guessed the number!"
+        break
+    elif [ $guess -lt $random_number ]; then
+        echo "The number is higher than your guess"
+        if [ $guesses -eq 1 ]; then
+            echo "You have no guesses left"
+            echo "The number was $random_number"
+        fi
+    else
+        echo "The number is lower than your guess"
+        if [ $guesses -eq 1 ]; then
+            echo "You have no guesses left"
+            echo "The number was $random_number"
+        fi
+    fi
+    guesses=$((guesses - 1))
+    echo "--+--+--+--+--+--+--+--"
+done
+exit 0
