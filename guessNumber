@@ -18,7 +18,11 @@ echo "----------------------------------------------------------------"
 while [ $guesses -gt 0 ]; do
     echo "You have $guesses guesses left"
     read -p "Enter your guess: " guess
-    if [ $guess -eq $random_number ]; then
+    if [ $guess -gt 100 ] || [ $guess -lt 1 ]; then
+        echo "The number must be between 1 and 100"
+        echo "--+--+--+--+--+--+--+--"
+        continue
+    elif [ $guess -eq $random_number ]; then
         echo "Congratulations! You guessed the number!"
         break
     elif [ $guess -lt $random_number ]; then
