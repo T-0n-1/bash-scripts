@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Author: Toni Mertanen
+# Created: 15.7.2024
+# Last modified: 15.7.2024
+
+# Description: Reads a file line by line and prints it to the screen char by char.
+
+# Usage: ./readLines <file>
+
+# Check if the input file is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 filename/process substitution"
+    exit 1
+fi
+
+# Read the file line by line
+while IFS= read -r line; do
+    # Loop through each character in the line
+    for (( i=0; i<${#line}; i++ )); do
+        # Print each character
+        echo -n "${line:$i:1}"
+        # Optional: add a slight delay for better visualization
+        sleep 0.1
+    done
+    # Print a newline after each line
+    echo
+done < "$1"
+
+exit 0
