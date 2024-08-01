@@ -8,6 +8,32 @@
 
 #Usage: ./folder_organiser.sh
 
+#Function to move a file to a directory
+move_file_to_directory() {
+    local file=$1
+    local directory=$2
+
+    # Check if the directory exists in the current directory
+    if [ ! -d "$directory" ]; then
+        echo "Directory '$directory' does not exist. Creating it now."
+        mkdir "$directory"
+        if [ $? -ne 0 ]; then
+            echo "Failed to create directory '$directory'."
+            return 1
+        fi
+    fi
+
+    # Move the file to the directory
+    mv "$file" "$directory"
+    if [ $? -eq 0 ]; then
+        echo "File '$file' has been moved to '$directory'."
+    else
+        echo "Failed to move the file '$file' to '$directory'."
+        return 1
+    fi
+}
+
+
 #Prompt the user if folder organisation is needed
 read -p "Do you want to organise the files in the current directory? (y/n): " response
 case "$response" in
@@ -26,65 +52,37 @@ esac
 
 # List files in the current directory and process each file
 ls | while read -r file; do
-  # Process each file
   echo "Processing file: $file"
   case "$file" in
     *.jpg|*.jpeg|*.png|*.gif|*.bmp|*.webp|*.svg)
       echo "Moving image file: $file"
-      if [ ! -d "images" ]; then
-        mkdir images
-      fi
-      mv "$file" images/
+      move_file_to_directory "$file" "images"
       ;;
     *.doc|*.docx|*.pdf|*.txt|*.odt|*.rtf)
       echo "Moving document file: $file"
-      if [ ! -d "documents" ]; then
-        mkdir documents
-      fi
-      mv "$file" documents/
+      move_file_to_directory "$file" "documents"
       ;;
     *.mp4|*.mkv|*.avi|*.mov|*.flv|*.wmv)
       echo "Moving video file: $file"
-      if [ ! -d "videos" ]; then
-        mkdir videos
-      fi
-      mv "$file" videos/
+      move_file_to_directory "$file" "videos"
       ;;
     *.mp3|*.wav|*.flac|*.ogg|*.wma)
       echo "Moving audio file: $file"
-      if [ ! -d "audio" ]; then
-        mkdir audio
-      fi
-      mv "$file" audio/
+      move_file_to_directory "$file" "audio"
       ;;
     *.sh|*.bash|*.py|*.js|*.java|*.cpp|*.c|*.h|*.hpp)
       echo "Moving script file: $file"
-      if [ ! -d "scripts" ]; then
-        mkdir scripts
-      fi
-      mv "$file" scripts/
+      move_file_to_directory "$file" "scripts"
       ;;
     *.xls|*.xlsx|*.ods|*.csv)
       echo "Moving spreadsheet file: $file"
-      if [ ! -d "spreadsheets" ]; then
-        mkdir spreadsheets
-      fi
-      mv "$file" spreadsheets/
-      ;;
+      move_file_to_directory "$file" "spreadsheets";;
     *.zip|*.tar|*.gz|*.bz2|*.7z|*.rar|*.bz2)
       echo "Moving archive file: $file"
-      if [ ! -d "archives" ]; then
-        mkdir archives
-      fi
-      mv "$file" archives/
-      ;;
+      move_file_to_directory "$file" "archives";;
     *.ppt|*.pptx|*.odp)
       echo "Moving presentation file: $file"
-      if [ ! -d "presentations" ]; then
-        mkdir presentations
-      fi
-      mv "$file" presentations/
-      ;;
+      move_file_to_directory "$file" "presentations";;
     *)
       echo "File type not defined for organisizing: $file"
       ;;
