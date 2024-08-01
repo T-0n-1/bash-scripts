@@ -1,0 +1,96 @@
+#!bash
+
+#Author: Toni Mertanen
+#Created: 1.8.2024
+#Last modified: 1.8.2024
+
+#Description: This script organises the files in the given directory by moving them to the corresponding folders based on their file extensions.
+
+#Usage: ./folder_organiser.sh
+
+#Prompt the user if folder organisation is needed
+read -p "Do you want to organise the files in the current directory? (y/n): " response
+case "$response" in
+  [yY][eE][sS]|[yY])
+    echo "Organising files in the current directory..."
+    ;;
+  [nN][oO]|[nN])
+    echo "Exiting the script..."
+    exit 1
+    ;;
+  *)
+    echo "Invalid input. Exiting the script..."
+    exit 1
+    ;;
+esac
+
+#Check if directories needed exit, if not create them
+if [ ! -d "images" ]; then
+  mkdir images
+fi
+if [ ! -d "documents" ]; then
+  mkdir documents
+fi
+if [ ! -d "videos" ]; then
+  mkdir videos
+fi
+if [ ! -d "audio" ]; then
+  mkdir audio
+fi
+if [ ! -d "scripts" ]; then
+    mkdir scripts
+fi
+if [ ! -d "spreadsheets" ]; then
+    mkdir spreadsheets
+fi
+if [ ! -d "archives" ]; then
+    mkdir archives
+fi
+if [ ! -d "presentations" ]; then
+    mkdir presentations
+fi
+
+# List files in the current directory and process each file
+ls | while read -r file; do
+  # Process each file
+  echo "Processing file: $file"
+  case "$file" in
+    *.jpg|*.jpeg|*.png|*.gif|*.bmp|*.webp|*.svg)
+      echo "Moving image file: $file"
+      mv "$file" images/
+      ;;
+    *.doc|*.docx|*.pdf|*.txt|*.odt|*.rtf)
+      echo "Moving document file: $file"
+      mv "$file" documents/
+      ;;
+    *.mp4|*.mkv|*.avi|*.mov|*.flv|*.wmv)
+      echo "Moving video file: $file"
+      mv "$file" videos/
+      ;;
+    *.mp3|*.wav|*.flac|*.ogg|*.wma)
+      echo "Moving audio file: $file"
+      mv "$file" audio/
+      ;;
+    *.sh|*.bash|*.py|*.js|*.java|*.cpp|*.c|*.h|*.hpp)
+      echo "Moving script file: $file"
+      mv "$file" scripts/
+      ;;
+    *.xls|*.xlsx|*.ods|*.csv)
+      echo "Moving spreadsheet file: $file"
+      mv "$file" spreadsheets/
+      ;;
+    *.zip|*.tar|*.gz|*.bz2|*.7z|*.rar|*.bz2)
+      echo "Moving archive file: $file"
+      mv "$file" archives/
+      ;;
+    *.ppt|*.pptx|*.odp)
+      echo "Moving presentation file: $file"
+      mv "$file" presentations/
+      ;;
+    *)
+      echo "File type not defined for organisizing: $file"
+      ;;
+  esac
+done
+
+exit 0
