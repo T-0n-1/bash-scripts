@@ -24,32 +24,6 @@ case "$response" in
     ;;
 esac
 
-#Check if directories needed exit, if not create them
-if [ ! -d "images" ]; then
-  mkdir images
-fi
-if [ ! -d "documents" ]; then
-  mkdir documents
-fi
-if [ ! -d "videos" ]; then
-  mkdir videos
-fi
-if [ ! -d "audio" ]; then
-  mkdir audio
-fi
-if [ ! -d "scripts" ]; then
-    mkdir scripts
-fi
-if [ ! -d "spreadsheets" ]; then
-    mkdir spreadsheets
-fi
-if [ ! -d "archives" ]; then
-    mkdir archives
-fi
-if [ ! -d "presentations" ]; then
-    mkdir presentations
-fi
-
 # List files in the current directory and process each file
 ls | while read -r file; do
   # Process each file
@@ -57,34 +31,58 @@ ls | while read -r file; do
   case "$file" in
     *.jpg|*.jpeg|*.png|*.gif|*.bmp|*.webp|*.svg)
       echo "Moving image file: $file"
+      if [ ! -d "images" ]; then
+        mkdir images
+      fi
       mv "$file" images/
       ;;
     *.doc|*.docx|*.pdf|*.txt|*.odt|*.rtf)
       echo "Moving document file: $file"
+      if [ ! -d "documents" ]; then
+        mkdir documents
+      fi
       mv "$file" documents/
       ;;
     *.mp4|*.mkv|*.avi|*.mov|*.flv|*.wmv)
       echo "Moving video file: $file"
+      if [ ! -d "videos" ]; then
+        mkdir videos
+      fi
       mv "$file" videos/
       ;;
     *.mp3|*.wav|*.flac|*.ogg|*.wma)
       echo "Moving audio file: $file"
+      if [ ! -d "audio" ]; then
+        mkdir audio
+      fi
       mv "$file" audio/
       ;;
     *.sh|*.bash|*.py|*.js|*.java|*.cpp|*.c|*.h|*.hpp)
       echo "Moving script file: $file"
+      if [ ! -d "scripts" ]; then
+        mkdir scripts
+      fi
       mv "$file" scripts/
       ;;
     *.xls|*.xlsx|*.ods|*.csv)
       echo "Moving spreadsheet file: $file"
+      if [ ! -d "spreadsheets" ]; then
+        mkdir spreadsheets
+      fi
       mv "$file" spreadsheets/
       ;;
     *.zip|*.tar|*.gz|*.bz2|*.7z|*.rar|*.bz2)
       echo "Moving archive file: $file"
+      if [ ! -d "archives" ]; then
+        mkdir archives
+      fi
       mv "$file" archives/
       ;;
     *.ppt|*.pptx|*.odp)
       echo "Moving presentation file: $file"
+      if [ ! -d "presentations" ]; then
+        mkdir presentations
+      fi
       mv "$file" presentations/
       ;;
     *)
