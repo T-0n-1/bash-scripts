@@ -4,11 +4,39 @@
 # Created: 14.7.2024
 # Last modified: 14.7.2024
 
-# Description: This script is used to automate the process of initializing the git and creating the .gitignore, 
+# Description: This script is used to automate the process of initializing npm/tsc/git and creating the .gitignore, 
 # linking the local repo with the remote one, adding and committing the changes with user given message to the 
 # remote repository. It will run the necessary commands and ask for user input when needed.
 
-# Usage: ./gauto - The script will check the state of git initialization and ask for user input when needed. 
+# Usage: ./gauto - The script will check the state of git/npm/tsc initialization and ask for user input when needed. 
+
+# Check if npm is initialized by looking for package.json
+if [ ! -f package.json ]; then
+    echo "--------------------------------------------------"
+    read -p "npm is not initialized. Would you like to initialize npm? (y/n): " init_npm
+    if [[ "$init_npm" =~ ^[Yy]$ ]]; then
+        npm init
+        echo "npm has been initialized (package.json created)."
+        echo "--------------------------------------------------"
+    else
+        echo "npm was not initialized."
+        echo "--------------------------------------------------"
+    fi
+fi
+
+# Check if TypeScript is initialized by looking for tsconfig.json
+if [ ! -f tsconfig.json ]; then
+    echo "--------------------------------------------------"
+    read -p "TypeScript is not initialized. Would you like to initialize TypeScript? (y/n): " init_tsc
+    if [[ "$init_tsc" =~ ^[Yy]$ ]]; then
+        tsc --init
+        echo "TypeScript has been initialized (tsconfig.json created)."
+        echo "--------------------------------------------------"
+    else
+        echo "TypeScript was not initialized."
+        echo "--------------------------------------------------"
+    fi
+fi
 
 # Check if the current directory is a git repository
 if [ ! -d .git ]; then
@@ -35,6 +63,7 @@ if [ "$a" != "$b" ]; then
     echo "--------------------------------------------------"
 fi
 
+# Check if the .gitignore file exists
 # Define the default entries that should be in .gitignore
 default_entries=(
 "venv/"
@@ -46,8 +75,9 @@ default_entries=(
 "config.codekit3"
 ".gitignore"
 )
+# Flag to track if any changes were made
+changes_made=false
 
-# Check if the .gitignore file exists
 if [ ! -f .gitignore ]; then
     echo "Creating .gitignore..."
     
@@ -55,15 +85,14 @@ if [ ! -f .gitignore ]; then
     for entry in "${default_entries[@]}"; do
         echo "$entry" >> .gitignore
     done
+    changes_made=true
 
     echo ".gitignore created with the following contents:"
     cat .gitignore
     echo "--------------------------------------------------"
 else
-    echo ".gitignore already exists with the following contents:"
-    cat .gitignore
+    echo ".gitignore already exists."
     echo "--------------------------------------------------"
-
     # Check if all default entries are present, and add any that are missing
     missing_entries=()
     for entry in "${default_entries[@]}"; do
@@ -78,18 +107,19 @@ else
             echo "$entry" >> .gitignore
             echo "Added: $entry"
         done
+        changes_made=true
         echo "--------------------------------------------------"
     else
         echo "No missing entries in .gitignore."
         echo "--------------------------------------------------"
     fi
 fi
-
-# Display updated .gitignore contents
-echo "Updated .gitignore contents:"
-cat .gitignore
-echo "--------------------------------------------------"
-
+# Display updated .gitignore contents only if there were changes
+if [ "$changes_made" = true ]; then
+    echo "Updated .gitignore contents:"
+    cat .gitignore
+    echo "--------------------------------------------------"
+fi
 # Ask if the user wants to add more entries
 while true; do
     read -p "Would you like to add anything else to .gitignore? (y/n): " add_more
@@ -99,6 +129,7 @@ while true; do
         # Check if the entry is already in .gitignore
         if ! grep -qx "$new_entry" .gitignore; then
             echo "$new_entry" >> .gitignore
+            changes_made=true
             echo "Updated .gitignore contents:"
             cat .gitignore
             echo "--------------------------------------------------"
@@ -106,15 +137,18 @@ while true; do
             echo "Entry '$new_entry' already exists in .gitignore."
         fi
     elif [[ "$add_more" =~ ^[Nn]$ ]]; then
-        echo "Final .gitignore contents:"
-        cat .gitignore
+        if [ "$changes_made" = false ]; then
+            echo "No changes were made to .gitignore."
+        else
+            echo "Final .gitignore contents:"
+            cat .gitignore
+        fi
         echo "--------------------------------------------------"
         break
     else
         echo "Invalid input, please enter 'y' or 'n'."
     fi
 done
-
 
 # Check if there are any changes to commit
 if [ -n "$(git add . -n)" ]; then
