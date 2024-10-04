@@ -35,16 +35,86 @@ if [ "$a" != "$b" ]; then
     echo "--------------------------------------------------"
 fi
 
+# Define the default entries that should be in .gitignore
+default_entries=(
+"venv/"
+".idea/"
+".git/"
+"node_modules/"
+".vscode"
+".DS_Store"
+"config.codekit3"
+".gitignore"
+)
+
 # Check if the .gitignore file exists
-if [ -f .gitignore ]; then
+if [ ! -f .gitignore ]; then
+    echo "Creating .gitignore..."
+    
+    # Create the default .gitignore
+    for entry in "${default_entries[@]}"; do
+        echo "$entry" >> .gitignore
+    done
+
+    echo ".gitignore created with the following contents:"
+    cat .gitignore
     echo "--------------------------------------------------"
 else
-    echo "Creating .gitignore..."
-    touch .gitignore
-    echo -e "venv/\n.idea/\n.git/\nnode_modules/\n.vscode\n.DS_Store\nconfig.codekit3\n.gitignore" > .gitignore
-    echo ".gitignore created."
+    echo ".gitignore already exists with the following contents:"
+    cat .gitignore
     echo "--------------------------------------------------"
+
+    # Check if all default entries are present, and add any that are missing
+    missing_entries=()
+    for entry in "${default_entries[@]}"; do
+        if ! grep -qx "$entry" .gitignore; then
+            missing_entries+=("$entry")
+        fi
+    done
+
+    if [ ${#missing_entries[@]} -gt 0 ]; then
+        echo "Adding missing default entries to .gitignore:"
+        for entry in "${missing_entries[@]}"; do
+            echo "$entry" >> .gitignore
+            echo "Added: $entry"
+        done
+        echo "--------------------------------------------------"
+    else
+        echo "No missing entries in .gitignore."
+        echo "--------------------------------------------------"
+    fi
 fi
+
+# Display updated .gitignore contents
+echo "Updated .gitignore contents:"
+cat .gitignore
+echo "--------------------------------------------------"
+
+# Ask if the user wants to add more entries
+while true; do
+    read -p "Would you like to add anything else to .gitignore? (y/n): " add_more
+
+    if [[ "$add_more" =~ ^[Yy]$ ]]; then
+        read -p "Enter the pattern or file/folder to add: " new_entry
+        # Check if the entry is already in .gitignore
+        if ! grep -qx "$new_entry" .gitignore; then
+            echo "$new_entry" >> .gitignore
+            echo "Updated .gitignore contents:"
+            cat .gitignore
+            echo "--------------------------------------------------"
+        else
+            echo "Entry '$new_entry' already exists in .gitignore."
+        fi
+    elif [[ "$add_more" =~ ^[Nn]$ ]]; then
+        echo "Final .gitignore contents:"
+        cat .gitignore
+        echo "--------------------------------------------------"
+        break
+    else
+        echo "Invalid input, please enter 'y' or 'n'."
+    fi
+done
+
 
 # Check if there are any changes to commit
 if [ -n "$(git add . -n)" ]; then
@@ -62,7 +132,6 @@ fi
 
 # Push the possible changes to the remote repository
 echo "Git push state..."
-git push -n
 if [ -z "$(git branch -r)" ]; then
     git push -uq origin main > /dev/null 2>&1
 else
