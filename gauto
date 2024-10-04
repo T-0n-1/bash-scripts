@@ -2,7 +2,7 @@
 
 # Author: Toni Mertanen
 # Created: 14.7.2024
-# Last modified: 14.7.2024
+# Last modified: 4.10.2024
 
 # Description: This script is used to automate the process of initializing npm/tsc/git and creating the .gitignore, 
 # linking the local repo with the remote one, adding and committing the changes with user given message to the 
