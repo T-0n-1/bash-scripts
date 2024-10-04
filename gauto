@@ -10,13 +10,29 @@
 
 # Usage: ./gauto - The script will check the state of git/npm/tsc initialization and ask for user input when needed. 
 
-# Check if npm is initialized by looking for package.json
+# Check if package.json exists
 if [ ! -f package.json ]; then
     echo "--------------------------------------------------"
     read -p "npm is not initialized. Would you like to initialize npm? (y/n): " init_npm
     if [[ "$init_npm" =~ ^[Yy]$ ]]; then
         npm init
         echo "npm has been initialized (package.json created)."
+        
+        # Add start script to package.json
+        if grep -q '"scripts"' package.json; then
+            # Ensure comma after the test line if not present
+            sed -i '' '/"test": "echo \\"Error: no test specified\\" && exit 1"/s/$/,/' package.json
+            
+            # Add the start script after the test script
+            sed -i '' '/"test": "echo \\"Error: no test specified\\" && exit 1",/a\
+    "start": "node ./dist/App.js"' package.json
+        else
+            # If "scripts" does not exist, add it
+            sed -i '' '/"main":/a\
+  "scripts": {\n    "start": "node ./dist/App.js"\n  },' package.json
+        fi
+        
+        echo '"start": "node ./dist/App.js" has been added to package.json scripts section.'
         echo "--------------------------------------------------"
     else
         echo "npm was not initialized."
@@ -27,16 +43,38 @@ fi
 # Check if TypeScript is initialized by looking for tsconfig.json
 if [ ! -f tsconfig.json ]; then
     echo "--------------------------------------------------"
+    
+    # Check if 'tsc' command is available
+    if ! command -v tsc &> /dev/null; then
+        echo "TypeScript (tsc) is not installed globally. Please install it by running:"
+        echo "npm install -g typescript"
+        echo "--------------------------------------------------"
+        exit 1
+    fi
+
     read -p "TypeScript is not initialized. Would you like to initialize TypeScript? (y/n): " init_tsc
     if [[ "$init_tsc" =~ ^[Yy]$ ]]; then
+        # Initialize TypeScript
         tsc --init
         echo "TypeScript has been initialized (tsconfig.json created)."
+        
+        # Create src and dist directories
+        mkdir -p src dist
+        echo "Directories 'src' and 'dist' have been created."
+
+        # Edit tsconfig.json to set rootDir and outDir
+        # Uncomment and modify the "rootDir" and "outDir" lines
+        sed -i '' 's|// "rootDir":.*|  "rootDir": "./src",|' tsconfig.json
+        sed -i '' 's|// "outDir":.*|  "outDir": "./dist",|' tsconfig.json
+
+        echo "tsconfig.json has been updated: rootDir is './src', outDir is './dist'."
         echo "--------------------------------------------------"
     else
         echo "TypeScript was not initialized."
         echo "--------------------------------------------------"
     fi
 fi
+
 
 # Check if the current directory is a git repository
 if [ ! -d .git ]; then
@@ -74,6 +112,7 @@ default_entries=(
 ".DS_Store"
 "config.codekit3"
 ".gitignore"
+"dist/"
 )
 # Flag to track if any changes were made
 changes_made=false
