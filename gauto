@@ -64,9 +64,9 @@ fi
 echo "Git push state..."
 git push -n
 if [ -z "$(git branch -r)" ]; then
-    git push -uq origin main
+    git push -uq origin main > /dev/null 2>&1
 else
-    git push -q 
+    git push -q > /dev/null 2>&1
 fi
 echo "--------------------------------------------------"
 echo "             All automation done!"
