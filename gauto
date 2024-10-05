@@ -61,7 +61,8 @@ if [ ! -f tsconfig.json ]; then
         # Create src and dist directories
         mkdir -p src dist
         echo "Directories 'src' and 'dist' have been created."
-
+        touch src/App.ts
+        echo "File 'App.ts' has been created in 'src' directory."
         # Edit tsconfig.json to set rootDir and outDir
         # Uncomment and modify the "rootDir" and "outDir" lines
         sed -i '' 's|// "rootDir":.*|  "rootDir": "./src",|' tsconfig.json
