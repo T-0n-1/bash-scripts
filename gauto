@@ -196,6 +196,57 @@ if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
     fi
 fi
 
+# Check if Black is initialized
+if [[ "$BLACK_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "python" ]]; then
+    echo "--------------------------------------------------"
+    read -p "code formatter black is not initialized. Would you like to install and initialize it? (y/n): " init_black
+    sed -i '' '/BLACK_INITIALIZED/d' .env  # Remove old entry
+    echo "BLACK_INITIALIZED=true" >> .env
+    export BLACK_INITIALIZED=true
+    if [[ "$init_black" =~ ^[Yy]$ ]]; then
+        pip install black 2>&1
+        echo "black has been installed."
+        echo "--------------------------------------------------"
+    else
+        echo "black was not installed."
+        echo "--------------------------------------------------"
+    fi
+fi
+
+# Check if Mypy is initialized
+if [[ "$MYPY_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "python" ]]; then
+    echo "--------------------------------------------------"
+    read -p "mypy is not initialized. Would you like to install and initialize it? (y/n): " init_mypy
+    sed -i '' '/MYPY_INITIALIZED/d' .env  # Remove old entry
+    echo "MYPY_INITIALIZED=true" >> .env
+    export MYPY_INITIALIZED=true
+    if [[ "$init_mypy" =~ ^[Yy]$ ]]; then
+        python3 -m pip install mypy 2>&1
+        echo "mypy has been installed."
+        echo "--------------------------------------------------"
+    else
+        echo "mypy was not installed."
+        echo "--------------------------------------------------"
+    fi
+fi
+
+# Check if Pylint is initialized
+if [[ "$PYLINT_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "python" ]]; then
+    echo "--------------------------------------------------"
+    read -p "pylint is not initialized. Would you like to install and initialize it? (y/n): " init_pylint
+    sed -i '' '/PYLINT_INITIALIZED/d' .env  # Remove old entry
+    echo "PYLINT_INITIALIZED=true" >> .env
+    export PYLINT_INITIALIZED=true
+    if [[ "$init_pylint" =~ ^[Yy]$ ]]; then
+        pip install pylint 2>&1
+        echo "pylint has been installed."
+        echo "--------------------------------------------------"
+    else
+        echo "pylint was not installed."
+        echo "--------------------------------------------------"
+    fi
+fi
+
 # Check if the current directory is a git repository
 if [[ "$GIT_INITIALIZED" == "false" ]] &&  [ ! -d .git ]; then
     echo "--------------------------------------------------"
