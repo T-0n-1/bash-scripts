@@ -35,12 +35,29 @@ else
 fi
 
 # Initialize defaults in .env if they don't exist
-for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED HOOKS_INITIALIZED; do
+for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED; do
     if [ -z "${!var}" ]; then
         echo "$var=false" >> .env
         export "$var=false"
     fi
 done
+
+# Checks for first use of gauto in directory already initialized with npm/tsc/git
+if [ -f package.json ]; then
+    sed -i '' '/NPM_INITIALIZED/d' .env  # Remove old entry
+    echo "NPM_INITIALIZED=true" >> .env
+    export NPM_INITIALIZED=true
+fi
+if [ -f tsconfig.json ]; then
+    sed -i '' '/TSC_INITIALIZED/d' .env  # Remove old entry
+    echo "TSC_INITIALIZED=true" >> .env
+    export TSC_INITIALIZED=true
+fi
+if [ -d .git ]; then
+    sed -i '' '/GIT_INITIALIZED/d' .env  # Remove old entry
+    echo "GIT_INITIALIZED=true" >> .env
+    export GIT_INITIALIZED=true
+fi
 
 # Check if NPM is initialized
 if [[ "$NPM_INITIALIZED" == "false" ]]; then
@@ -154,24 +171,6 @@ if [[ "$ESLINT_INITIALIZED" == "false" ]]; then
         echo "--------------------------------------------------"
     else
         echo "eslint was not initialized."
-        echo "--------------------------------------------------"
-    fi
-fi
-
-# Check if Hooks is initialized
-if [[ "$HOOKS_INITIALIZED" == "false" ]]; then
-    echo "--------------------------------------------------"
-    read -p "hooks is not initialized. Would you like to install and initialize it? (y/n): " init_hooks
-    sed -i '' '/HOOKS_INITIALIZED/d' .env  # Remove old entry
-    echo "HOOKS_INITIALIZED=true" >> .env
-    export HOOKS_INITIALIZED=true
-    if [[ "$init_hooks" =~ ^[Yy]$ ]]; then
-        npm install hooks --save-dev 2>&1
-        CHECK THE HOOKS INSTALL AND ESLINT/PRETTIER CONFIGURATION
-        echo "hooks has been installed and initialized."
-        echo "--------------------------------------------------"
-    else
-        echo "hooks was not initialized."
         echo "--------------------------------------------------"
     fi
 fi
