@@ -6,389 +6,389 @@
 # Version: 3.0
 
 # Description: This script is used to automate the process of initializing npm/tsc/prettier/eslint for JavaScript project or
-# pylint/mypy/black for Python project and initializing git and creating the .gitignore, linking the local repo with the 
-# remote one, adding and committing the changes with user given message to the the remote repository. With script it is also 
-# possible to automate running of code formatter and linter before each git commit. 
+# pylint/mypy/black for Python project and initializing git and creating the .gitignore, linking the local repo with the
+# remote one, adding and committing the changes with user given message to the the remote repository. With script it is also
+# possible to automate running of code formatter and linter before each git commit.
 # Script will run the necessary commands and ask for user input when needed.
 
-# Usage: ./gauto - The script will check the state of git/npm/tsc initialization and ask for user input when needed. 
+# Usage: ./gauto - The script will check the state of git/npm/tsc initialization and ask for user input when needed.
 
 # Define the default entries that should be in ignore files
 default_entries=(
-"venv/"
-".idea/"
-".git/"
-"node_modules/"
-".vscode"
-".DS_Store"
-"config.codekit3"
-".gitignore"
-"dist/"
-"Thumbs.db"
-".eslintcache"
-".env"
+	"venv/"
+	".idea/"
+	".git/"
+	"node_modules/"
+	".vscode"
+	".DS_Store"
+	"config.codekit3"
+	".gitignore"
+	"dist/"
+	"Thumbs.db"
+	".eslintcache"
+	".env"
 )
 
 # Load environment variables from the .env file
 if [ -f .env ]; then
-    source .env
+	source .env
 else
-    touch .env  # Create .env if it doesn't exist
+	touch .env # Create .env if it doesn't exist
 fi
 
 # Initialize defaults in .env if they don't exist
 for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED BLACK_INITIALIZED PYLINT_INITIALIZED MYPY_INITIALIZED LANGUAGE_INITIALIZED; do
-    if [ -z "${!var}" ]; then
-        echo "$var=false" >> .env
-        export "$var=false"
-    fi
+	if [ -z "${!var}" ]; then
+		echo "$var=false" >>.env
+		export "$var=false"
+	fi
 done
 
 # Checks which one is used in current project - JavaScript or Python
 if [[ "$LANGUAGE_INITIALIZED" == "false" ]]; then
-    echo "--------------------------------------------------"
-    read -p "which will be used in this project - Python or JS or Neither? (p/j/n): " language_selection
-    sed -i '' '/LANGUAGE_INITIALIZED/d' .env  
-    echo "LANGUAGE_INITIALIZED=true" >> .env
-    export LANGUAGE_INITIALIZED=true
-    if [[ "$language_selection" =~ ^[Jj]$ ]]; then
-        echo "JavaScript selected for project."
-        echo "LANGUAGE=js" >> .env
-        export LANGUAGE=js
-    elif [[ "$language_selection" =~ ^[Pp]$ ]]; then
-        echo "Python selected for project."
-        echo "LANGUAGE=python" >> .env
-        export LANGUAGE=python
-    else
-        echo "Neither JS or Python selected for project."
-        echo "LANGUAGE=neither" >> .env
-        export LANGUAGE=neither
-    fi
+	echo "--------------------------------------------------"
+	read -p "which will be used in this project - Python or JS or Neither? (p/j/n): " language_selection
+	sed -i '' '/LANGUAGE_INITIALIZED/d' .env
+	echo "LANGUAGE_INITIALIZED=true" >>.env
+	export LANGUAGE_INITIALIZED=true
+	if [[ "$language_selection" =~ ^[Jj]$ ]]; then
+		echo "JavaScript selected for project."
+		echo "LANGUAGE=js" >>.env
+		export LANGUAGE=js
+	elif [[ "$language_selection" =~ ^[Pp]$ ]]; then
+		echo "Python selected for project."
+		echo "LANGUAGE=python" >>.env
+		export LANGUAGE=python
+	else
+		echo "Neither JS or Python selected for project."
+		echo "LANGUAGE=neither" >>.env
+		export LANGUAGE=neither
+	fi
 fi
 echo "--------------------------------------------------"
 
 # Checks for first use of gauto in directory already initialized with npm/tsc/git
 if [ -f package.json ]; then
-    sed -i '' '/NPM_INITIALIZED/d' .env  # Remove old entry
-    echo "NPM_INITIALIZED=true" >> .env
-    export NPM_INITIALIZED=true
+	sed -i '' '/NPM_INITIALIZED/d' .env # Remove old entry
+	echo "NPM_INITIALIZED=true" >>.env
+	export NPM_INITIALIZED=true
 fi
 if [ -f tsconfig.json ]; then
-    sed -i '' '/TSC_INITIALIZED/d' .env  # Remove old entry
-    echo "TSC_INITIALIZED=true" >> .env
-    export TSC_INITIALIZED=true
+	sed -i '' '/TSC_INITIALIZED/d' .env # Remove old entry
+	echo "TSC_INITIALIZED=true" >>.env
+	export TSC_INITIALIZED=true
 fi
 if [ -d .git ]; then
-    sed -i '' '/GIT_INITIALIZED/d' .env  # Remove old entry
-    echo "GIT_INITIALIZED=true" >> .env
-    export GIT_INITIALIZED=true
+	sed -i '' '/GIT_INITIALIZED/d' .env # Remove old entry
+	echo "GIT_INITIALIZED=true" >>.env
+	export GIT_INITIALIZED=true
 fi
 
 # Check if NPM is initialized
 if [[ "$NPM_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
-    echo "--------------------------------------------------"
-    read -p "npm is not initialized. Would you like to initialize npm? (y/n): " init_npm
-    sed -i '' '/NPM_INITIALIZED/d' .env  # Remove old entry
-    echo "NPM_INITIALIZED=true" >> .env
-    export NPM_INITIALIZED=true
-    if [[ "$init_npm" =~ ^[Yy]$ ]]; then
-        npm init
-        echo "npm has been initialized (package.json created)."
-        
-        # Add start script to package.json
-        if grep -q '"scripts"' package.json; then
-            # Ensure comma after the test line if not present
-            sed -i '' '/"test": "echo \\"Error: no test specified\\" && exit 1"/s/$/,/' package.json
-            
-            # Add the start script after the test script
-            sed -i '' '/"test": "echo \\"Error: no test specified\\" && exit 1",/a\
+	echo "--------------------------------------------------"
+	read -p "npm is not initialized. Would you like to initialize npm? (y/n): " init_npm
+	sed -i '' '/NPM_INITIALIZED/d' .env # Remove old entry
+	echo "NPM_INITIALIZED=true" >>.env
+	export NPM_INITIALIZED=true
+	if [[ "$init_npm" =~ ^[Yy]$ ]]; then
+		npm init
+		echo "npm has been initialized (package.json created)."
+
+		# Add start script to package.json
+		if grep -q '"scripts"' package.json; then
+			# Ensure comma after the test line if not present
+			sed -i '' '/"test": "echo \\"Error: no test specified\\" && exit 1"/s/$/,/' package.json
+
+			# Add the start script after the test script
+			sed -i '' '/"test": "echo \\"Error: no test specified\\" && exit 1",/a\
     "start": "node ./dist/App.js"' package.json
-        else
-            # If "scripts" does not exist, add it
-            sed -i '' '/"main":/a\
+		else
+			# If "scripts" does not exist, add it
+			sed -i '' '/"main":/a\
   "scripts": {\n    "start": "node ./dist/App.js"\n  },' package.json
-        fi
-        
-        echo "--------------------------------------------------"
-        echo '"start": "node ./dist/App.js" has been added to package.json scripts section.'
-        echo "--------------------------------------------------"
-    else
-        echo "npm was not initialized."
-        echo "--------------------------------------------------"
-    fi
+		fi
+
+		echo "--------------------------------------------------"
+		echo '"start": "node ./dist/App.js" has been added to package.json scripts section.'
+		echo "--------------------------------------------------"
+	else
+		echo "npm was not initialized."
+		echo "--------------------------------------------------"
+	fi
 fi
 
 # Check if TypeScript is initialized by looking for tsconfig.json
 if [[ "$TSC_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
-    echo "--------------------------------------------------"
-    
-    # Check if 'tsc' command is available
-    if ! command -v tsc &> /dev/null; then
-        echo "TypeScript (tsc) is not installed globally. Please install it by running:"
-        echo "npm install -g typescript"
-        echo "--------------------------------------------------"
-        exit 1
-    fi
+	echo "--------------------------------------------------"
 
-    read -p "TypeScript is not initialized. Would you like to initialize TypeScript? (y/n): " init_tsc
-    sed -i '' '/TSC_INITIALIZED/d' .env  # Remove old entry
-    echo "TSC_INITIALIZED=true" >> .env
-    export TSC_INITIALIZED=true
-    if [[ "$init_tsc" =~ ^[Yy]$ ]]; then
-        # Initialize TypeScript
-        tsc --init
-        echo "TypeScript has been initialized (tsconfig.json created)."
-        echo "--------------------------------------------------"
-        
-        # Create src and dist directories
-        mkdir -p src dist
-        echo "Directories 'src' and 'dist' have been created."
-        echo "--------------------------------------------------"
-        touch src/App.ts
-        echo "File 'App.ts' has been created in 'src' directory."
-        echo "--------------------------------------------------"
-        # Edit tsconfig.json to set rootDir and outDir
-        # Uncomment and modify the "rootDir" and "outDir" lines
-        sed -i '' 's|// "rootDir":.*|  "rootDir": "./src",|' tsconfig.json
-        sed -i '' 's|// "outDir":.*|  "outDir": "./dist",|' tsconfig.json
+	# Check if 'tsc' command is available
+	if ! command -v tsc &>/dev/null; then
+		echo "TypeScript (tsc) is not installed globally. Please install it by running:"
+		echo "npm install -g typescript"
+		echo "--------------------------------------------------"
+		exit 1
+	fi
 
-        echo "tsconfig.json has been updated: rootDir is './src', outDir is './dist'."
-        echo "--------------------------------------------------"
-    else
-        echo "TypeScript was not initialized."
-        echo "--------------------------------------------------"
-    fi
+	read -p "TypeScript is not initialized. Would you like to initialize TypeScript? (y/n): " init_tsc
+	sed -i '' '/TSC_INITIALIZED/d' .env # Remove old entry
+	echo "TSC_INITIALIZED=true" >>.env
+	export TSC_INITIALIZED=true
+	if [[ "$init_tsc" =~ ^[Yy]$ ]]; then
+		# Initialize TypeScript
+		tsc --init
+		echo "TypeScript has been initialized (tsconfig.json created)."
+		echo "--------------------------------------------------"
+
+		# Create src and dist directories
+		mkdir -p src dist
+		echo "Directories 'src' and 'dist' have been created."
+		echo "--------------------------------------------------"
+		touch src/App.ts
+		echo "File 'App.ts' has been created in 'src' directory."
+		echo "--------------------------------------------------"
+		# Edit tsconfig.json to set rootDir and outDir
+		# Uncomment and modify the "rootDir" and "outDir" lines
+		sed -i '' 's|// "rootDir":.*|  "rootDir": "./src",|' tsconfig.json
+		sed -i '' 's|// "outDir":.*|  "outDir": "./dist",|' tsconfig.json
+
+		echo "tsconfig.json has been updated: rootDir is './src', outDir is './dist'."
+		echo "--------------------------------------------------"
+	else
+		echo "TypeScript was not initialized."
+		echo "--------------------------------------------------"
+	fi
 fi
 
 # Check if Prettier is initialized
 if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
-    echo "--------------------------------------------------"
-    read -p "prettier is not initialized. Would you like to install and initialize it? (y/n): " init_prettier
-    sed -i '' '/PRETTIER_INITIALIZED/d' .env  # Remove old entry
-    echo "PRETTIER_INITIALIZED=true" >> .env
-    export PRETTIER_INITIALIZED=true
-    if [[ "$init_prettier" =~ ^[Yy]$ ]]; then
-        npm install --save-dev --save-exact prettier 2>&1
-        node --eval "fs.writeFileSync('.prettierrc','{}\n')" 2>&1
-        echo "prettier has been installed and initialized."
-        echo "--------------------------------------------------"
-    else
-        echo "prettier was not initialized."
-        echo "--------------------------------------------------"
-    fi
+	echo "--------------------------------------------------"
+	read -p "prettier is not initialized. Would you like to install and initialize it? (y/n): " init_prettier
+	sed -i '' '/PRETTIER_INITIALIZED/d' .env # Remove old entry
+	echo "PRETTIER_INITIALIZED=true" >>.env
+	export PRETTIER_INITIALIZED=true
+	if [[ "$init_prettier" =~ ^[Yy]$ ]]; then
+		npm install --save-dev --save-exact prettier 2>&1
+		node --eval "fs.writeFileSync('.prettierrc','{}\n')" 2>&1
+		echo "prettier has been installed and initialized."
+		echo "--------------------------------------------------"
+	else
+		echo "prettier was not initialized."
+		echo "--------------------------------------------------"
+	fi
 fi
 
 # Check if ESLint is initialized
 if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
-    echo "--------------------------------------------------"
-    read -p "eslint is not initialized. Would you like to install and initialize it? (y/n): " init_eslint
-    sed -i '' '/ESLINT_INITIALIZED/d' .env  # Remove old entry
-    echo "ESLINT_INITIALIZED=true" >> .env
-    export ESLINT_INITIALIZED=true
-    if [[ "$init_eslint" =~ ^[Yy]$ ]]; then
-        npm init @eslint/config@latest 2<&1
-        # Create the .eslintignore
-        touch .eslintignore
-        for entry in "${default_entries[@]}"; do
-            echo "$entry" >> .eslintignore
-        done
-        echo "eslint has been installed and initialized."
-        echo "--------------------------------------------------"
-    else
-        echo "eslint was not initialized."
-        echo "--------------------------------------------------"
-    fi
+	echo "--------------------------------------------------"
+	read -p "eslint is not initialized. Would you like to install and initialize it? (y/n): " init_eslint
+	sed -i '' '/ESLINT_INITIALIZED/d' .env # Remove old entry
+	echo "ESLINT_INITIALIZED=true" >>.env
+	export ESLINT_INITIALIZED=true
+	if [[ "$init_eslint" =~ ^[Yy]$ ]]; then
+		npm init @eslint/config@latest 2<&1
+		# Create the .eslintignore
+		touch .eslintignore
+		for entry in "${default_entries[@]}"; do
+			echo "$entry" >>.eslintignore
+		done
+		echo "eslint has been installed and initialized."
+		echo "--------------------------------------------------"
+	else
+		echo "eslint was not initialized."
+		echo "--------------------------------------------------"
+	fi
 fi
 
 # Check if Black is initialized
 if [[ "$BLACK_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
-    echo "--------------------------------------------------"
-    read -p "code formatter black is not initialized. Would you like to install and initialize it? (y/n): " init_black
-    sed -i '' '/BLACK_INITIALIZED/d' .env  # Remove old entry
-    echo "BLACK_INITIALIZED=true" >> .env
-    export BLACK_INITIALIZED=true
-    if [[ "$init_black" =~ ^[Yy]$ ]]; then
-        pip install black 2>&1
-        echo "black has been installed."
-        echo "--------------------------------------------------"
-    else
-        echo "black was not installed."
-        echo "--------------------------------------------------"
-    fi
+	echo "--------------------------------------------------"
+	read -p "code formatter black is not initialized. Would you like to install and initialize it? (y/n): " init_black
+	sed -i '' '/BLACK_INITIALIZED/d' .env # Remove old entry
+	echo "BLACK_INITIALIZED=true" >>.env
+	export BLACK_INITIALIZED=true
+	if [[ "$init_black" =~ ^[Yy]$ ]]; then
+		pip install black 2>&1
+		echo "black has been installed."
+		echo "--------------------------------------------------"
+	else
+		echo "black was not installed."
+		echo "--------------------------------------------------"
+	fi
 fi
 
 # Check if Mypy is initialized
 if [[ "$MYPY_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
-    echo "--------------------------------------------------"
-    read -p "mypy is not initialized. Would you like to install and initialize it? (y/n): " init_mypy
-    sed -i '' '/MYPY_INITIALIZED/d' .env  # Remove old entry
-    echo "MYPY_INITIALIZED=true" >> .env
-    export MYPY_INITIALIZED=true
-    if [[ "$init_mypy" =~ ^[Yy]$ ]]; then
-        python3 -m pip install mypy 2>&1
-        echo "mypy has been installed."
-        echo "--------------------------------------------------"
-    else
-        echo "mypy was not installed."
-        echo "--------------------------------------------------"
-    fi
+	echo "--------------------------------------------------"
+	read -p "mypy is not initialized. Would you like to install and initialize it? (y/n): " init_mypy
+	sed -i '' '/MYPY_INITIALIZED/d' .env # Remove old entry
+	echo "MYPY_INITIALIZED=true" >>.env
+	export MYPY_INITIALIZED=true
+	if [[ "$init_mypy" =~ ^[Yy]$ ]]; then
+		python3 -m pip install mypy 2>&1
+		echo "mypy has been installed."
+		echo "--------------------------------------------------"
+	else
+		echo "mypy was not installed."
+		echo "--------------------------------------------------"
+	fi
 fi
 
 # Check if Pylint is initialized
 if [[ "$PYLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
-    echo "--------------------------------------------------"
-    read -p "pylint is not initialized. Would you like to install and initialize it? (y/n): " init_pylint
-    sed -i '' '/PYLINT_INITIALIZED/d' .env  # Remove old entry
-    echo "PYLINT_INITIALIZED=true" >> .env
-    export PYLINT_INITIALIZED=true
-    if [[ "$init_pylint" =~ ^[Yy]$ ]]; then
-        python3 -m pip install mypy 2>&1
-        echo "pylint has been installed."
-        echo "--------------------------------------------------"
-    else
-        echo "pylint was not installed."
-        echo "--------------------------------------------------"
-    fi
+	echo "--------------------------------------------------"
+	read -p "pylint is not initialized. Would you like to install and initialize it? (y/n): " init_pylint
+	sed -i '' '/PYLINT_INITIALIZED/d' .env # Remove old entry
+	echo "PYLINT_INITIALIZED=true" >>.env
+	export PYLINT_INITIALIZED=true
+	if [[ "$init_pylint" =~ ^[Yy]$ ]]; then
+		python3 -m pip install mypy 2>&1
+		echo "pylint has been installed."
+		echo "--------------------------------------------------"
+	else
+		echo "pylint was not installed."
+		echo "--------------------------------------------------"
+	fi
 fi
 
 # Check if the current directory is a git repository
-if [[ "$GIT_INITIALIZED" == "false" ]] &&  [ ! -d .git ]; then
-    echo "--------------------------------------------------"
-    read -p "Git is not initialized. Would you like to initialize Git? (y/n): " init_git
-    sed -i '' '/GIT_INITIALIZED/d' .env  # Remove old entry
-    echo "GIT_INITIALIZED=true" >> .env
-    export GIT_INITIALIZED=true
-    if [[ "$init_git" =~ ^[Yy]$ ]]; then
-        echo "Initializing git..."
-        git init > /dev/null 2>&1
-        echo "Git initialized."
-        echo "--------------------------------------------------"
-    else
-        echo "Git was not initialized."
-        echo "--------------------------------------------------"
-    fi
+if [[ "$GIT_INITIALIZED" == "false" ]] && [ ! -d .git ]; then
+	echo "--------------------------------------------------"
+	read -p "Git is not initialized. Would you like to initialize Git? (y/n): " init_git
+	sed -i '' '/GIT_INITIALIZED/d' .env # Remove old entry
+	echo "GIT_INITIALIZED=true" >>.env
+	export GIT_INITIALIZED=true
+	if [[ "$init_git" =~ ^[Yy]$ ]]; then
+		echo "Initializing git..."
+		git init >/dev/null 2>&1
+		echo "Git initialized."
+		echo "--------------------------------------------------"
+	else
+		echo "Git was not initialized."
+		echo "--------------------------------------------------"
+	fi
 fi
 
 if [ -d .git ]; then
-    # Check if the local repository is linked with the remote one
-    a=$(git remote)
-    b=origin
-    if [ "$a" != "$b" ]; then
-        echo "Linking the local repository with the remote one..."
-        echo "Enter the URL of the remote repository: "
-        read url
-        git remote add origin $url
-        echo "Local repository linked with the remote one."
-        echo "--------------------------------------------------"
-        git branch -M main
-        echo "Branch renamed to main."
-        echo "--------------------------------------------------"
-    fi  
+	# Check if the local repository is linked with the remote one
+	a=$(git remote)
+	b=origin
+	if [ "$a" != "$b" ]; then
+		echo "Linking the local repository with the remote one..."
+		echo "Enter the URL of the remote repository: "
+		read url
+		git remote add origin $url
+		echo "Local repository linked with the remote one."
+		echo "--------------------------------------------------"
+		git branch -M main
+		echo "Branch renamed to main."
+		echo "--------------------------------------------------"
+	fi
 
-    # Check if the .gitignore file exists
-    # Flag to track if any changes were made
-    changes_made=false
+	# Check if the .gitignore file exists
+	# Flag to track if any changes were made
+	changes_made=false
 
-    if [ ! -f .gitignore ]; then
-        echo "Creating .gitignore..."
-    
-        # Create the default .gitignore
-        for entry in "${default_entries[@]}"; do
-            echo "$entry" >> .gitignore
-        done
-        changes_made=true
+	if [ ! -f .gitignore ]; then
+		echo "Creating .gitignore..."
 
-        echo ".gitignore created."
-    else
-        echo ".gitignore already exists."
-        echo "--------------------------------------------------"
-        # Check if all default entries are present, and add any that are missing
-        missing_entries=()
-        for entry in "${default_entries[@]}"; do
-            if ! grep -qx "$entry" .gitignore; then
-                missing_entries+=("$entry")
-            fi
-        done
+		# Create the default .gitignore
+		for entry in "${default_entries[@]}"; do
+			echo "$entry" >>.gitignore
+		done
+		changes_made=true
 
-        if [ ${#missing_entries[@]} -gt 0 ]; then
-            echo "Adding missing default entries to .gitignore:"
-            for entry in "${missing_entries[@]}"; do
-                echo "$entry" >> .gitignore
-                echo "Added: $entry"
-            done
-            changes_made=true
-            echo "--------------------------------------------------"
-        else
-            echo "No missing entries in .gitignore."
-            echo "--------------------------------------------------"
-        fi
-    fi
-    # Display updated .gitignore contents only if there were changes
-    if [ "$changes_made" = true ]; then
-        echo "Updated .gitignore contents:"
-        cat .gitignore
-        echo "--------------------------------------------------"
-    fi
-    # Ask if the user wants to add more entries
-    if [[ "$GITIGNORE_INITIALIZED" == "false" ]]; then
-        while true; do
-            read -p "Would you like to add anything else to .gitignore? (y/n): " add_more
-            sed -i '' '/GITIGNORE_INITIALIZED/d' .env  # Remove old entry
-            echo "GITIGNORE_INITIALIZED=true" >> .env
-            export GITIGNORE_INITIALIZED=true
+		echo ".gitignore created."
+	else
+		echo ".gitignore already exists."
+		echo "--------------------------------------------------"
+		# Check if all default entries are present, and add any that are missing
+		missing_entries=()
+		for entry in "${default_entries[@]}"; do
+			if ! grep -qx "$entry" .gitignore; then
+				missing_entries+=("$entry")
+			fi
+		done
 
-            if [[ "$add_more" =~ ^[Yy]$ ]]; then
-                read -p "Enter the pattern or file/folder to add: " new_entry
-                # Check if the entry is already in .gitignore
-                if ! grep -qx "$new_entry" .gitignore; then
-                    echo "$new_entry" >> .gitignore
-                    changes_made=true
-                    echo "Updated .gitignore contents:"
-                    cat .gitignore
-                    echo "--------------------------------------------------"
-                else
-                    echo "Entry '$new_entry' already exists in .gitignore."
-                fi
-            elif [[ "$add_more" =~ ^[Nn]$ ]]; then
-                if [ "$changes_made" = false ]; then
-                    echo "No changes were made to .gitignore."
-                else
-                    echo "Final .gitignore contents:"
-                    cat .gitignore
-                fi
-                echo "--------------------------------------------------"
-                break
-            else
-                echo "Invalid input, please enter 'y' or 'n'."
-            fi
-        done
-    fi
-fi 
+		if [ ${#missing_entries[@]} -gt 0 ]; then
+			echo "Adding missing default entries to .gitignore:"
+			for entry in "${missing_entries[@]}"; do
+				echo "$entry" >>.gitignore
+				echo "Added: $entry"
+			done
+			changes_made=true
+			echo "--------------------------------------------------"
+		else
+			echo "No missing entries in .gitignore."
+			echo "--------------------------------------------------"
+		fi
+	fi
+	# Display updated .gitignore contents only if there were changes
+	if [ "$changes_made" = true ]; then
+		echo "Updated .gitignore contents:"
+		cat .gitignore
+		echo "--------------------------------------------------"
+	fi
+	# Ask if the user wants to add more entries
+	if [[ "$GITIGNORE_INITIALIZED" == "false" ]]; then
+		while true; do
+			read -p "Would you like to add anything else to .gitignore? (y/n): " add_more
+			sed -i '' '/GITIGNORE_INITIALIZED/d' .env # Remove old entry
+			echo "GITIGNORE_INITIALIZED=true" >>.env
+			export GITIGNORE_INITIALIZED=true
+
+			if [[ "$add_more" =~ ^[Yy]$ ]]; then
+				read -p "Enter the pattern or file/folder to add: " new_entry
+				# Check if the entry is already in .gitignore
+				if ! grep -qx "$new_entry" .gitignore; then
+					echo "$new_entry" >>.gitignore
+					changes_made=true
+					echo "Updated .gitignore contents:"
+					cat .gitignore
+					echo "--------------------------------------------------"
+				else
+					echo "Entry '$new_entry' already exists in .gitignore."
+				fi
+			elif [[ "$add_more" =~ ^[Nn]$ ]]; then
+				if [ "$changes_made" = false ]; then
+					echo "No changes were made to .gitignore."
+				else
+					echo "Final .gitignore contents:"
+					cat .gitignore
+				fi
+				echo "--------------------------------------------------"
+				break
+			else
+				echo "Invalid input, please enter 'y' or 'n'."
+			fi
+		done
+	fi
+fi
 
 # Check if there are any changes to commit
 if [ -d .git ] && [ -n "$(git add . -n)" ]; then
-    echo "Adding and committing the changes..."
-    echo "Enter the commit message: "
-    read message
-    git add .
-    git commit -m "$message" > /dev/null 2>&1
-    echo "Changes added and committed."
-    echo "--------------------------------------------------"
-    
-    # Push the possible changes to the remote repository
-    echo "Git push state..."
-    if [ -z "$(git branch -r)" ]; then
-        git push -uq origin main > /dev/null 2>&1
-    else
-        git push -q > /dev/null 2>&1
-    fi
+	echo "Adding and committing the changes..."
+	echo "Enter the commit message: "
+	read message
+	git add .
+	git commit -m "$message" >/dev/null 2>&1
+	echo "Changes added and committed."
+	echo "--------------------------------------------------"
+
+	# Push the possible changes to the remote repository
+	echo "Git push state..."
+	if [ -z "$(git branch -r)" ]; then
+		git push -uq origin main >/dev/null 2>&1
+	else
+		git push -q >/dev/null 2>&1
+	fi
 elif [ -d .git ]; then
-    echo "No changes to commit."
-    echo "--------------------------------------------------"
+	echo "No changes to commit."
+	echo "--------------------------------------------------"
 fi
 
 for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED JS_OVER_PYTHON; do
-    unset $var
+	unset $var
 done
 
 echo "--------------------------------------------------"
