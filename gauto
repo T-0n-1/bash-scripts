@@ -47,7 +47,7 @@ done
 # Checks which one is used in current project - JavaScript or Python
 if [[ "$LANGUAGE_INITIALIZED" == "false" ]]; then
     echo "--------------------------------------------------"
-    read -p "which will be used in this project - Python or JS? (p/j): " language_selection
+    read -p "which will be used in this project - Python or JS or Neither? (p/j/n): " language_selection
     sed -i '' '/LANGUAGE_INITIALIZED/d' .env  
     echo "LANGUAGE_INITIALIZED=true" >> .env
     export LANGUAGE_INITIALIZED=true
@@ -55,10 +55,14 @@ if [[ "$LANGUAGE_INITIALIZED" == "false" ]]; then
         echo "JavaScript selected for project."
         echo "LANGUAGE=js" >> .env
         export LANGUAGE=js
-    else
+    elif [[ "$language_selection" =~ ^[Pp]$ ]]; then
         echo "Python selected for project."
         echo "LANGUAGE=python" >> .env
         export LANGUAGE=python
+    else
+        echo "Neither JS or Python selected for project."
+        echo "LANGUAGE=neither" >> .env
+        export LANGUAGE=neither
     fi
 fi
 echo "--------------------------------------------------"
