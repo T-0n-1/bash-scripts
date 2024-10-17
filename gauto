@@ -81,7 +81,7 @@ if [ -d .git ]; then
 fi
 
 # Check if NPM is initialized
-if [[ "$NPM_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
+if [[ "$NPM_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
     echo "--------------------------------------------------"
     read -p "npm is not initialized. Would you like to initialize npm? (y/n): " init_npm
     sed -i '' '/NPM_INITIALIZED/d' .env  # Remove old entry
@@ -115,7 +115,7 @@ if [[ "$NPM_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
 fi
 
 # Check if TypeScript is initialized by looking for tsconfig.json
-if [[ "$TSC_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
+if [[ "$TSC_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
     echo "--------------------------------------------------"
     
     # Check if 'tsc' command is available
@@ -157,7 +157,7 @@ if [[ "$TSC_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
 fi
 
 # Check if Prettier is initialized
-if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
+if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
     echo "--------------------------------------------------"
     read -p "prettier is not initialized. Would you like to install and initialize it? (y/n): " init_prettier
     sed -i '' '/PRETTIER_INITIALIZED/d' .env  # Remove old entry
@@ -175,7 +175,7 @@ if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
 fi
 
 # Check if ESLint is initialized
-if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
+if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
     echo "--------------------------------------------------"
     read -p "eslint is not initialized. Would you like to install and initialize it? (y/n): " init_eslint
     sed -i '' '/ESLINT_INITIALIZED/d' .env  # Remove old entry
@@ -197,7 +197,7 @@ if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
 fi
 
 # Check if Black is initialized
-if [[ "$BLACK_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "python" ]]; then
+if [[ "$BLACK_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
     echo "--------------------------------------------------"
     read -p "code formatter black is not initialized. Would you like to install and initialize it? (y/n): " init_black
     sed -i '' '/BLACK_INITIALIZED/d' .env  # Remove old entry
@@ -214,7 +214,7 @@ if [[ "$BLACK_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "python" ]]; then
 fi
 
 # Check if Mypy is initialized
-if [[ "$MYPY_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "python" ]]; then
+if [[ "$MYPY_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
     echo "--------------------------------------------------"
     read -p "mypy is not initialized. Would you like to install and initialize it? (y/n): " init_mypy
     sed -i '' '/MYPY_INITIALIZED/d' .env  # Remove old entry
@@ -231,14 +231,14 @@ if [[ "$MYPY_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "python" ]]; then
 fi
 
 # Check if Pylint is initialized
-if [[ "$PYLINT_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "python" ]]; then
+if [[ "$PYLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
     echo "--------------------------------------------------"
     read -p "pylint is not initialized. Would you like to install and initialize it? (y/n): " init_pylint
     sed -i '' '/PYLINT_INITIALIZED/d' .env  # Remove old entry
     echo "PYLINT_INITIALIZED=true" >> .env
     export PYLINT_INITIALIZED=true
     if [[ "$init_pylint" =~ ^[Yy]$ ]]; then
-        pip install pylint 2>&1
+        python3 -m pip install mypy 2>&1
         echo "pylint has been installed."
         echo "--------------------------------------------------"
     else
