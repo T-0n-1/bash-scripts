@@ -37,7 +37,7 @@ else
 fi
 
 # Initialize defaults in .env if they don't exist
-for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED BLACK_INITIALIZED PYLINT_INITIALIZED MYPY_INITIALIZED JS_OVER_PYTHON; do
+for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED BLACK_INITIALIZED PYLINT_INITIALIZED MYPY_INITIALIZED LANGUAGE_INITIALIZED; do
     if [ -z "${!var}" ]; then
         echo "$var=false" >> .env
         export "$var=false"
@@ -45,18 +45,24 @@ for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED
 done
 
 # Checks which one is used in current project - JavaScript or Python
-echo "--------------------------------------------------"
-read -p "which will be used in this project - Python or JS? (p/j): " language_selection
-if [[ "$language_selection" =~ ^[Jj]$ ]]; then
-    sed -i '' '/JS_OVER_PYTHON/d' .env  
-    echo "JS_OVER_PYTHON=true" >> .env
-    export JS_OVER_PYTHON=true
-    echo "JavaScript selected for project."
-else
-    echo "Python selected for project."
+if [[ "$LANGUAGE_INITIALIZED" == "false" ]]; then
+    echo "--------------------------------------------------"
+    read -p "which will be used in this project - Python or JS? (p/j): " language_selection
+    sed -i '' '/LANGUAGE_INITIALIZED/d' .env  
+    echo "LANGUAGE_INITIALIZED=true" >> .env
+    export LANGUAGE_INITIALIZED=true
+    if [[ "$language_selection" =~ ^[Jj]$ ]]; then
+        echo "JavaScript selected for project."
+        echo "LANGUAGE=js" >> .env
+        export LANGUAGE=js
+    else
+        echo "Python selected for project."
+        echo "LANGUAGE=python" >> .env
+        export LANGUAGE=python
+    fi
 fi
 echo "--------------------------------------------------"
-    
+
 # Checks for first use of gauto in directory already initialized with npm/tsc/git
 if [ -f package.json ]; then
     sed -i '' '/NPM_INITIALIZED/d' .env  # Remove old entry
@@ -75,7 +81,7 @@ if [ -d .git ]; then
 fi
 
 # Check if NPM is initialized
-if [[ "$NPM_INITIALIZED" == "false" ]]; then
+if [[ "$NPM_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
     echo "--------------------------------------------------"
     read -p "npm is not initialized. Would you like to initialize npm? (y/n): " init_npm
     sed -i '' '/NPM_INITIALIZED/d' .env  # Remove old entry
@@ -109,7 +115,7 @@ if [[ "$NPM_INITIALIZED" == "false" ]]; then
 fi
 
 # Check if TypeScript is initialized by looking for tsconfig.json
-if [[ "$TSC_INITIALIZED" == "false" ]]; then
+if [[ "$TSC_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
     echo "--------------------------------------------------"
     
     # Check if 'tsc' command is available
@@ -151,7 +157,7 @@ if [[ "$TSC_INITIALIZED" == "false" ]]; then
 fi
 
 # Check if Prettier is initialized
-if [[ "$PRETTIER_INITIALIZED" == "false" ]]; then
+if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
     echo "--------------------------------------------------"
     read -p "prettier is not initialized. Would you like to install and initialize it? (y/n): " init_prettier
     sed -i '' '/PRETTIER_INITIALIZED/d' .env  # Remove old entry
@@ -169,7 +175,7 @@ if [[ "$PRETTIER_INITIALIZED" == "false" ]]; then
 fi
 
 # Check if ESLint is initialized
-if [[ "$ESLINT_INITIALIZED" == "false" ]]; then
+if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "LANGUAGE" == "js" ]]; then
     echo "--------------------------------------------------"
     read -p "eslint is not initialized. Would you like to install and initialize it? (y/n): " init_eslint
     sed -i '' '/ESLINT_INITIALIZED/d' .env  # Remove old entry
