@@ -37,18 +37,12 @@ else
 fi
 
 # Initialize defaults in .env if they don't exist
-for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED BLACK_INITIALIZED PYLINT_INITIALIZED MYPY_INITIALIZED LANGUAGE_INITIALIZED ADDONS_INITIALIZED HOOKS_INITIALIZED; do
+for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED BLACK_INITIALIZED PYLINT_INITIALIZED MYPY_INITIALIZED LANGUAGE_INITIALIZED HOOKS_INITIALIZED; do
 	if [ -z "${!var}" ]; then
 		echo "$var=false" >>.env
 		export "$var=false"
 	fi
 done
-
-# Addons
-addons="00000"
-sed -i '' '/ADDONS_INITIALIZED/d' .env
-echo "ADDONS_INITIALIZED=true" >>.env
-export ADDONS_INITIALIZED=true
 
 # Checks which one is used in current project - JavaScript or Python
 if [[ "$LANGUAGE_INITIALIZED" == "false" ]]; then
@@ -265,10 +259,17 @@ if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]]; then
 			if [ ! -f .git/hooks/pre-commit ]; then
 				touch .git/hooks/pre-commit
 			fi
-			# remember to check installed addons & init according to that
-			echo BLAABLAA >>.git/hooks/pre-commit
+			echo "black ." >>.git/hooks/pre-commit
+			echo "mypy ." >>.git/hooks/pre-commit
+			echo "pylint ." >>.git/hooks/pre-commit
 			echo "hooks have been installed."
 			echo "--------------------------------------------------"
+		elif [[ "$LANGUAGE" == "js" ]]; then
+			if [ ! -f .git/hooks/pre-commit ]; then
+				touch .git/hooks/pre-commit
+			fi
+			echo "npx prettier --write ." >>.git/hooks/pre-commit
+			echo "npx eslint --ignore-path .gitignore . --fix" >>.git/hooks/pre-commit
 		fi
 	else
 		echo "hooks were not installed."
