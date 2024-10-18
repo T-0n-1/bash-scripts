@@ -173,8 +173,9 @@ if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 		touch .prettierignore
 		for entry in "${default_entries[@]}"; do
 			echo $entry >> .prettierignore; 
+			echo "tsconfig.json" >> .prettierignore;
+			echo "eslint.config.mjs" >> .prettierignore;
 		done
-		# cat .gitignore >>.prettierignore
 		echo "prettier has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
@@ -191,7 +192,7 @@ if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	echo "ESLINT_INITIALIZED=true" >>.env
 	export ESLINT_INITIALIZED=true
 	if [[ "$init_eslint" =~ ^[Yy]$ ]]; then
-		npx eslint --init
+		npx eslint --init && sed -i '/export default/a\  { ignores: ["venv/", ".idea/", ".git/", "node_modules/", ".vscode", ".DS_Store", "config.codekit3", ".gitignore", "dist/", "Thumbs.db", ".eslintcache", ".env", 'tsconfig.json', "*.mjs", "*.min.js"] },' eslint.config.mjs
 		echo "eslint has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
@@ -293,7 +294,7 @@ if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]] && [ 
 				chmod +x .git/hooks/pre-commit
 			fi
 			echo "npx prettier --write ." >>.git/hooks/pre-commit
-			echo "npx eslint --ignore-path .gitignore . --fix" >>.git/hooks/pre-commit
+			echo "npx eslint . --fix" >>.git/hooks/pre-commit
 		fi
 	else
 		echo "hooks were not installed."
