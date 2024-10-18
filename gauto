@@ -170,7 +170,11 @@ if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	if [[ "$init_prettier" =~ ^[Yy]$ ]]; then
 		npm install --save-dev --save-exact prettier 2>&1
 		node --eval "fs.writeFileSync('.prettierrc','{}\n')" 2>&1
-		cat .gitignore >>.prettierignore
+		touch .prettierignore
+		for entry in "${default_entries[@]}"; do
+			echo $entry >> .prettierignore; 
+		done
+		# cat .gitignore >>.prettierignore
 		echo "prettier has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
@@ -247,36 +251,6 @@ if [[ "$PYLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
 	fi
 fi
 
-# Check if Hooks are initialized
-if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]]; then
-	echo "--------------------------------------------------"
-	read -p "hooks are not initialized. Would you like to install and initialize precommit hooks? (y/n): " init_hooks
-	sed -i '' '/HOOKS_INITIALIZED/d' .env # Remove old entry
-	echo "HOOKS_INITIALIZED=true" >>.env
-	export HOOKS_INITIALIZED=true
-	if [[ "$init_hooks" =~ ^[Yy]$ ]]; then
-		if [[ "$LANGUAGE" == "python" ]]; then
-			if [ ! -f .git/hooks/pre-commit ]; then
-				touch .git/hooks/pre-commit
-			fi
-			echo "black ." >>.git/hooks/pre-commit
-			echo "mypy ." >>.git/hooks/pre-commit
-			echo "pylint ." >>.git/hooks/pre-commit
-			echo "hooks have been installed."
-			echo "--------------------------------------------------"
-		elif [[ "$LANGUAGE" == "js" ]]; then
-			if [ ! -f .git/hooks/pre-commit ]; then
-				touch .git/hooks/pre-commit
-			fi
-			echo "npx prettier --write ." >>.git/hooks/pre-commit
-			echo "npx eslint --ignore-path .gitignore . --fix" >>.git/hooks/pre-commit
-		fi
-	else
-		echo "hooks were not installed."
-		echo "--------------------------------------------------"
-	fi
-fi
-
 # Check if the current directory is a git repository
 if [[ "$GIT_INITIALIZED" == "false" ]] && [ ! -d .git ]; then
 	echo "--------------------------------------------------"
@@ -291,6 +265,38 @@ if [[ "$GIT_INITIALIZED" == "false" ]] && [ ! -d .git ]; then
 		echo "--------------------------------------------------"
 	else
 		echo "Git was not initialized."
+		echo "--------------------------------------------------"
+	fi
+fi
+
+# Check if Hooks are initialized
+if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]]; then
+	echo "--------------------------------------------------"
+	read -p "hooks are not initialized. Would you like to install and initialize precommit hooks? (y/n): " init_hooks
+	sed -i '' '/HOOKS_INITIALIZED/d' .env # Remove old entry
+	echo "HOOKS_INITIALIZED=true" >>.env
+	export HOOKS_INITIALIZED=true
+	if [[ "$init_hooks" =~ ^[Yy]$ ]]; then
+		if [[ "$LANGUAGE" == "python" ]]; then
+			if [ ! -f .git/hooks/pre-commit ]; then
+				touch .git/hooks/pre-commit
+				chmod +x .git/hooks/pre-commit
+			fi
+			echo "black ." >>.git/hooks/pre-commit
+			echo "mypy ." >>.git/hooks/pre-commit
+			echo "pylint ." >>.git/hooks/pre-commit
+			echo "hooks have been installed."
+			echo "--------------------------------------------------"
+		elif [[ "$LANGUAGE" == "js" ]]; then
+			if [ ! -f .git/hooks/pre-commit ]; then
+				touch .git/hooks/pre-commit
+				chmod +x .git/hooks/pre-commit
+			fi
+			echo "npx prettier --write ." >>.git/hooks/pre-commit
+			echo "npx eslint --ignore-path .gitignore . --fix" >>.git/hooks/pre-commit
+		fi
+	else
+		echo "hooks were not installed."
 		echo "--------------------------------------------------"
 	fi
 fi
