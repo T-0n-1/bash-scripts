@@ -37,12 +37,18 @@ else
 fi
 
 # Initialize defaults in .env if they don't exist
-for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED BLACK_INITIALIZED PYLINT_INITIALIZED MYPY_INITIALIZED LANGUAGE_INITIALIZED; do
+for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED BLACK_INITIALIZED PYLINT_INITIALIZED MYPY_INITIALIZED LANGUAGE_INITIALIZED ADDONS_INITIALIZED HOOKS_INITIALIZED; do
 	if [ -z "${!var}" ]; then
 		echo "$var=false" >>.env
 		export "$var=false"
 	fi
 done
+
+# Addons
+addons="00000"
+sed -i '' '/ADDONS_INITIALIZED/d' .env
+echo "ADDONS_INITIALIZED=true" >>.env
+export ADDONS_INITIALIZED=true
 
 # Checks which one is used in current project - JavaScript or Python
 if [[ "$LANGUAGE_INITIALIZED" == "false" ]]; then
@@ -170,6 +176,7 @@ if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	if [[ "$init_prettier" =~ ^[Yy]$ ]]; then
 		npm install --save-dev --save-exact prettier 2>&1
 		node --eval "fs.writeFileSync('.prettierrc','{}\n')" 2>&1
+		cat .gitignore >>.prettierignore
 		echo "prettier has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
@@ -186,12 +193,7 @@ if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	echo "ESLINT_INITIALIZED=true" >>.env
 	export ESLINT_INITIALIZED=true
 	if [[ "$init_eslint" =~ ^[Yy]$ ]]; then
-		npm init @eslint/config@latest 2<&1
-		# Create the .eslintignore
-		touch .eslintignore
-		for entry in "${default_entries[@]}"; do
-			echo "$entry" >>.eslintignore
-		done
+		npx eslint --init
 		echo "eslint has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
@@ -247,6 +249,29 @@ if [[ "$PYLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
 		echo "--------------------------------------------------"
 	else
 		echo "pylint was not installed."
+		echo "--------------------------------------------------"
+	fi
+fi
+
+# Check if Hooks are initialized
+if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]]; then
+	echo "--------------------------------------------------"
+	read -p "hooks are not initialized. Would you like to install and initialize precommit hooks? (y/n): " init_hooks
+	sed -i '' '/HOOKS_INITIALIZED/d' .env # Remove old entry
+	echo "HOOKS_INITIALIZED=true" >>.env
+	export HOOKS_INITIALIZED=true
+	if [[ "$init_hooks" =~ ^[Yy]$ ]]; then
+		if [[ "$LANGUAGE" == "python" ]]; then
+			if [ ! -f .git/hooks/pre-commit ]; then
+				touch .git/hooks/pre-commit
+			fi
+			# remember to check installed addons & init according to that
+			echo BLAABLAA >>.git/hooks/pre-commit
+			echo "hooks have been installed."
+			echo "--------------------------------------------------"
+		fi
+	else
+		echo "hooks were not installed."
 		echo "--------------------------------------------------"
 	fi
 fi
@@ -387,8 +412,8 @@ elif [ -d .git ]; then
 	echo "--------------------------------------------------"
 fi
 
-for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED JS_OVER_PYTHON; do
-	unset $var
+for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED BLACK_INITIALIZED PYLINT_INITIALIZED MYPY_INITIALIZED LANGUAGE_INITIALIZED HOOKS_INITIALIZED; do
+	unset $var 2>&1
 done
 
 echo "--------------------------------------------------"
