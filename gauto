@@ -270,7 +270,7 @@ if [[ "$GIT_INITIALIZED" == "false" ]] && [ ! -d .git ]; then
 fi
 
 # Check if Hooks are initialized
-if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]]; then
+if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]] && [ -d .git ]; then
 	echo "--------------------------------------------------"
 	read -p "hooks are not initialized. Would you like to install and initialize precommit hooks? (y/n): " init_hooks
 	sed -i '' '/HOOKS_INITIALIZED/d' .env # Remove old entry
