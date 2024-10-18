@@ -2,8 +2,8 @@
 
 # Author: Toni Mertanen
 # Created: 14.7.2024
-# Last modified: 17.10.2024
-# Version: 3.0
+# Last modified: 18.10.2024
+# Version: 3.1
 
 # Description: This script is used to automate the process of initializing npm/tsc/prettier/eslint for JavaScript project or
 # pylint/mypy/black for Python project and initializing git and creating the .gitignore, linking the local repo with the
