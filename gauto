@@ -2,8 +2,8 @@
 
 # Author: Toni Mertanen
 # Created: 14.7.2024
-# Last modified: 18.10.2024
-# Version: 3.1
+# Last modified: 21.10.2024
+# Version: 3.1.1
 
 # Description: This script is used to automate the process of initializing npm/tsc/prettier/eslint for JavaScript project or
 # pylint/mypy/black for Python project and initializing git and creating the .gitignore, linking the local repo with the
@@ -189,7 +189,7 @@ if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	export ESLINT_INITIALIZED=true
 	if [[ "$init_eslint" =~ ^[Yy]$ ]]; then
 		npx eslint --init && sed -i '' '/export default/a\
-  			{ ignores: ["venv/", ".idea/", ".git/", "node_modules/", ".vscode", ".DS_Store", "config.codekit3", ".gitignore", "dist/", "Thumbs.db", ".eslintcache", ".env", "tsconfig.json", "*.mjs", "*.min.js"] },' eslint.config.mjs
+  			{ ignores: ["venv/", ".idea/", ".git/", "node_modules/", ".vscode", ".DS_Store", "config.codekit3", ".gitignore", "dist/", "Thumbs.db", ".eslintcache", ".env", "test/", "tests/", "tsconfig.json", "*.mjs", "*.min.js"] },' eslint.config.mjs
 		echo "eslint has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
