@@ -171,6 +171,13 @@ if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
         		echo "$item" >> "$prettier_ignore_file"
 			fi
     	done
+		for item in "eslint.config.mjs" "tsconfig.json"; do
+    		# Check if the item is not in the .prettierignore file
+    		if ! grep -Fxq "$item" "$prettier_ignore_file"; then
+        	# If not, append the item to the .prettierignore file
+        		echo "$item" >> "$prettier_ignore_file"
+			fi
+    	done
 		echo "prettier has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
