@@ -118,28 +118,25 @@ if [[ "$NPM_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	fi
 fi
 
-# Check if TypeScript is initialized by looking for tsconfig.json
+# Check if TypeScript is installed/initialized 
 if [[ "$TSC_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	echo "--------------------------------------------------"
-
 	# Check if 'tsc' command is available
-	if ! command -v tsc &>/dev/null; then
-		echo "TypeScript (tsc) is not installed globally. Please install it by running:"
-		echo "npm install -g typescript"
-		echo "--------------------------------------------------"
-		exit 1
-	fi
-
-	read -p "TypeScript is not initialized. Would you like to initialize TypeScript? (y/n): " init_tsc
+	read -p "TypeScript is not installed and/or initialized. Would you like to initialize TypeScript? (y/n): " init_tsc
 	sed -i '' '/TSC_INITIALIZED/d' .env # Remove old entry
 	echo "TSC_INITIALIZED=true" >>.env
 	export TSC_INITIALIZED=true
 	if [[ "$init_tsc" =~ ^[Yy]$ ]]; then
+		# Install TypeScript
+		if ! command -v tsc &>/dev/null; then
+		npm install typescript 2>&1
+		echo "TypeScript is now installed."
+		echo "--------------------------------------------------"
+	fi
 		# Initialize TypeScript
 		tsc --init
 		echo "TypeScript has been initialized (tsconfig.json created)."
 		echo "--------------------------------------------------"
-
 		# Create src and dist directories
 		mkdir -p src dist
 		echo "Directories 'src' and 'dist' have been created."
@@ -151,7 +148,6 @@ if [[ "$TSC_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 		# Uncomment and modify the "rootDir" and "outDir" lines
 		sed -i '' 's|// "rootDir":.*|  "rootDir": "./src",|' tsconfig.json
 		sed -i '' 's|// "outDir":.*|  "outDir": "./dist",|' tsconfig.json
-
 		echo "tsconfig.json has been updated: rootDir is './src', outDir is './dist'."
 		echo "--------------------------------------------------"
 	else
@@ -163,7 +159,7 @@ fi
 # Check if Prettier is initialized
 if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	echo "--------------------------------------------------"
-	read -p "prettier is not initialized. Would you like to install and initialize it? (y/n): " init_prettier
+	read -p "prettier is not installed and/or initialized. Would you like to install and initialize it? (y/n): " init_prettier
 	sed -i '' '/PRETTIER_INITIALIZED/d' .env # Remove old entry
 	echo "PRETTIER_INITIALIZED=true" >>.env
 	export PRETTIER_INITIALIZED=true
@@ -187,12 +183,13 @@ fi
 # Check if ESLint is initialized
 if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	echo "--------------------------------------------------"
-	read -p "eslint is not initialized. Would you like to install and initialize it? (y/n): " init_eslint
+	read -p "eslint is not installed and/or initialized. Would you like to install and initialize it? (y/n): " init_eslint
 	sed -i '' '/ESLINT_INITIALIZED/d' .env # Remove old entry
 	echo "ESLINT_INITIALIZED=true" >>.env
 	export ESLINT_INITIALIZED=true
 	if [[ "$init_eslint" =~ ^[Yy]$ ]]; then
-		npx eslint --init && sed -i '/export default/a\  { ignores: ["venv/", ".idea/", ".git/", "node_modules/", ".vscode", ".DS_Store", "config.codekit3", ".gitignore", "dist/", "Thumbs.db", ".eslintcache", ".env", 'tsconfig.json', "*.mjs", "*.min.js"] },' eslint.config.mjs
+		npx eslint --init && sed -i '' '/export default/a\
+  			{ ignores: ["venv/", ".idea/", ".git/", "node_modules/", ".vscode", ".DS_Store", "config.codekit3", ".gitignore", "dist/", "Thumbs.db", ".eslintcache", ".env", "tsconfig.json", "*.mjs", "*.min.js"] },' eslint.config.mjs
 		echo "eslint has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
@@ -204,7 +201,7 @@ fi
 # Check if Black is initialized
 if [[ "$BLACK_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
 	echo "--------------------------------------------------"
-	read -p "code formatter black is not initialized. Would you like to install and initialize it? (y/n): " init_black
+	read -p "code formatter black is not installed. Would you like to install it? (y/n): " init_black
 	sed -i '' '/BLACK_INITIALIZED/d' .env # Remove old entry
 	echo "BLACK_INITIALIZED=true" >>.env
 	export BLACK_INITIALIZED=true
@@ -221,7 +218,7 @@ fi
 # Check if Mypy is initialized
 if [[ "$MYPY_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "python" ]]; then
 	echo "--------------------------------------------------"
-	read -p "mypy is not initialized. Would you like to install and initialize it? (y/n): " init_mypy
+	read -p "mypy is not installed. Would you like to install and initialize it? (y/n): " init_mypy
 	sed -i '' '/MYPY_INITIALIZED/d' .env # Remove old entry
 	echo "MYPY_INITIALIZED=true" >>.env
 	export MYPY_INITIALIZED=true
