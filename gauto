@@ -282,22 +282,29 @@ if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]] && [ 
 	export HOOKS_INITIALIZED=true
 	if [[ "$init_hooks" =~ ^[Yy]$ ]]; then
 		if [[ "$LANGUAGE" == "python" ]]; then
-			if [ ! -f .git/hooks/pre-commit ]; then
-				touch .git/hooks/pre-commit
-				chmod +x .git/hooks/pre-commit
-			fi
-			echo "black ." >>.git/hooks/pre-commit
-			echo "mypy ." >>.git/hooks/pre-commit
-			echo "pylint ." >>.git/hooks/pre-commit
+			[ ! -f .git/hooks/pre-commit ] && touch .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+			precommitfile=".git/hooks/pre-commit"
+			for item in "black ." "mypy ." "pylint ."; do
+    			# Check if the item is not in the pre-commit file file
+    			if ! grep -Fxq "$item" "$precommitfile"; then
+        		# If not, append the item to the pre-commit file file
+        			echo "$item" >> "$precommitfile"
+				fi
+    		done
 			echo "hooks have been installed."
 			echo "--------------------------------------------------"
 		elif [[ "$LANGUAGE" == "js" ]]; then
-			if [ ! -f .git/hooks/pre-commit ]; then
-				touch .git/hooks/pre-commit
-				chmod +x .git/hooks/pre-commit
-			fi
-			echo "npx prettier --write ." >>.git/hooks/pre-commit
-			echo "npx eslint . --fix" >>.git/hooks/pre-commit
+			[ ! -f .git/hooks/pre-commit ] && touch .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+			precommitfile=".git/hooks/pre-commit"
+			for item in "npx prettier --write ." "npx eslint . --fix"; do
+    			# Check if the item is not in the pre-commit file file
+    			if ! grep -Fxq "$item" "$precommitfile"; then
+        		# If not, append the item to the pre-commit file file
+        			echo "$item" >> "$precommitfile"
+				fi
+    		done
+			echo "hooks have been installed."
+			echo "--------------------------------------------------"
 		fi
 	else
 		echo "hooks were not installed."
