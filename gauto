@@ -30,11 +30,7 @@ default_entries=(
 )
 
 # Load environment variables from the .env file
-if [ -f .env ]; then
-	source .env
-else
-	touch .env # Create .env if it doesn't exist
-fi
+[ -f .env ] && source .env || touch .env # Create .env if it doesn't exist
 
 # Initialize defaults in .env if they don't exist
 for var in NPM_INITIALIZED TSC_INITIALIZED GIT_INITIALIZED GITIGNORE_INITIALIZED PRETTIER_INITIALIZED ESLINT_INITIALIZED BLACK_INITIALIZED PYLINT_INITIALIZED MYPY_INITIALIZED LANGUAGE_INITIALIZED HOOKS_INITIALIZED; do
@@ -166,16 +162,19 @@ if [[ "$PRETTIER_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 	if [[ "$init_prettier" =~ ^[Yy]$ ]]; then
 		npm install --save-dev --save-exact prettier 2>&1
 		node --eval "fs.writeFileSync('.prettierrc','{}\n')" 2>&1
-		touch .prettierignore
-		for entry in "${default_entries[@]}"; do
-			echo $entry >> .prettierignore; 
-			echo "tsconfig.json" >> .prettierignore;
-			echo "eslint.config.mjs" >> .prettierignore;
-		done
+		[ -f .prettierignore ] || touch .prettierignore
+		prettier_ignore_file=".prettierignore"
+		for item in "${default_entries[@]}"; do
+    		# Check if the item is not in the .prettierignore file
+    		if ! grep -Fxq "$item" "$prettier_ignore_file"; then
+        	# If not, append the item to the .prettierignore file
+        		echo "$item" >> "$prettier_ignore_file"
+			fi
+    	done
 		echo "prettier has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
-		echo "prettier was not initialized."
+		echo "prettier was not installed/initialized."
 		echo "--------------------------------------------------"
 	fi
 fi
@@ -193,7 +192,7 @@ if [[ "$ESLINT_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 		echo "eslint has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
-		echo "eslint was not initialized."
+		echo "eslint was not installed."
 		echo "--------------------------------------------------"
 	fi
 fi
