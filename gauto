@@ -91,22 +91,15 @@ if [[ "$NPM_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 		npm init
 		echo "npm has been initialized (package.json created)."
 
-		# Add start script to package.json
-		if grep -q '"scripts"' package.json; then
-			# Ensure comma after the test line if not present
-			sed -i '' '/"test": "echo \\"Error: no test specified\\" && exit 1"/s/$/,/' package.json
-
-			# Add the start script after the test script
-			sed -i '' '/"test": "echo \\"Error: no test specified\\" && exit 1",/a\
-    "start": "node ./dist/App.js"' package.json
-		else
-			# If "scripts" does not exist, add it
-			sed -i '' '/"main":/a\
-  "scripts": {\n    "start": "node ./dist/App.js"\n  },' package.json
-		fi
-
+		# Add correct scripts to package.json
+		# Add multiple scripts to the scripts section
+		jq '.scripts += {
+		”dev”: ”nodemon ./src/App.ts”,
+		"start": "node ./dist/App.js",
+		"test": ”mocha",
+		}' package.json > tmp.json && mv tmp.json package.json
 		echo "--------------------------------------------------"
-		echo '"start": "node ./dist/App.js" has been added to package.json scripts section.'
+		echo "Updated multiple scripts in package.json"
 		echo "--------------------------------------------------"
 	else
 		echo "npm was not initialized."
