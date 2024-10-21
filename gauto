@@ -101,6 +101,15 @@ if [[ "$NPM_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" == "js" ]]; then
 		echo "--------------------------------------------------"
 		echo "Updated multiple scripts in package.json"
 		echo "--------------------------------------------------"
+		read -p "would you like to install express? (y/n): " init_express
+		if [[ "$init_express" =~ ^[Yy]$ ]]; then
+			npm i express
+			echo "express has been installed."
+			echo "--------------------------------------------------"
+		else 
+			echo "express was not installed."
+			echo "--------------------------------------------------"
+		fi
 	else
 		echo "npm was not initialized."
 		echo "--------------------------------------------------"
