@@ -450,7 +450,7 @@ if [ -d .git ] && [ -n "$(git add . -n)" ]; then
 	echo "Enter the commit message: "
 	read message
 	git add .
-	git commit -m "$message" >/dev/null 2>&1
+	git commit -m "$message" > /dev/null
 	echo "Changes added and committed."
 	echo "--------------------------------------------------"
 
