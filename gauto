@@ -138,17 +138,18 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 const serverPort = process.env.PORT || 3000;
 
 module.exports = {
-  proxy: `http://localhost:${serverPort}`, // Proxy your Express server
+  proxy: \`http://localhost:${serverPort}\`, // Proxy your Express server
   port: 4000, // BrowserSync’s port
-  files: ["public/**/*.{html,js,css}", "src/**/*.ts"], // Watch files for changes
+  files: ["src/**/*.ts"], // Watch files for changes
   injectChanges: true, // Enable injecting changes
   reloadOnRestart: true, // Reload the browser when BS restarts
+  reloadDebounce: 700,
 };
 EOL
 
-						# Use jq to add the dev script without extra trailing comma
+						# Use jq to add the dev script with extra trailing comma
 						jq '.scripts += {"dev": "concurrently \"nodemon --exec ts-node ./src/App.ts\" \"browser-sync ./src/App.ts --config bs-config.js\""
-}' package.json >tmp.json && mv tmp.json package.json
+,}' package.json >tmp.json && mv tmp.json package.json
 						echo "Updated dev script in package.json"
 						echo "browser-sync has been installed."
 						echo "--------------------------------------------------"
@@ -185,6 +186,10 @@ if [ ! -f tsconfig.json ] && [[ "$LANGUAGE" == "js" ]]; then
 		tsc --init >/dev/null 2>&1
 		echo "TypeScript has been initialized (tsconfig.json created)."
 		echo "--------------------------------------------------"
+		jq '.scripts += {"predev": "tsc -w &"}' package.json >tmp.json && mv tmp.json package.json
+		echo "TSC watch mode activation added to predev script in package.json."
+		echo "--------------------------------------------------"
+
 		# Create src and dist directories
 		mkdir -p src dist
 		echo "Directories 'src' and 'dist' have been created."
