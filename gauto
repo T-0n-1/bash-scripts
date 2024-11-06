@@ -3,7 +3,7 @@
 # Author: Toni Mertanen
 # Created: 14.7.2024
 # Last modified: 6.11.2024
-# Version: 4.1.0
+# Version: 5.0.1
 
 # Description: This script is used to automate the process of initializing npm/typescript/prettier/eslint/
 # ts-node/express/nodemon/browser-sync and type libraries for express/node/mocha/chai for JavaScript project
@@ -46,16 +46,17 @@ default_entries=(
 	"dist/"
 	"Thumbs.db"
 	".eslintcache"
+	".env_gauto"
 	".env"
 )
 
 # Load environment variables from the .env file
-[ -f .env ] && source .env || touch .env # Create .env if it doesn't exist
+[ -f .env_gauto ] && source .env_gauto || touch .env_gauto # Create .env_gauto if it doesn't exist
 
-# Initialize defaults in .env if they don't exist
+# Initialize defaults in .env_gauto if they don't exist
 for var in LANGUAGE_INITIALIZED HOOKS_INITIALIZED; do
 	if [ -z "${!var}" ]; then
-		echo "$var=false" >>.env
+		echo "$var=false" >>.env_gauto
 		export "$var=false"
 	fi
 done
@@ -64,20 +65,20 @@ done
 if [[ "$LANGUAGE_INITIALIZED" == "false" ]]; then
 	echo "--------------------------------------------------"
 	read -p "which will be used in this project - Python or JS or Neither? (p/j/n): " language_selection
-	sed -i '' '/LANGUAGE_INITIALIZED/d' .env
-	echo "LANGUAGE_INITIALIZED=true" >>.env
+	sed -i '' '/LANGUAGE_INITIALIZED/d' .env_gauto
+	echo "LANGUAGE_INITIALIZED=true" >>.env_gauto
 	export LANGUAGE_INITIALIZED=true
 	if [[ "$language_selection" =~ ^[Jj]$ ]]; then
 		echo "JavaScript selected for project."
-		echo "LANGUAGE=js" >>.env
+		echo "LANGUAGE=js" >>.env_gauto
 		export LANGUAGE=js
 	elif [[ "$language_selection" =~ ^[Pp]$ ]]; then
 		echo "Python selected for project."
-		echo "LANGUAGE=python" >>.env
+		echo "LANGUAGE=python" >>.env_gauto
 		export LANGUAGE=python
 	else
 		echo "Neither JS or Python selected for project."
-		echo "LANGUAGE=neither" >>.env
+		echo "LANGUAGE=neither" >>.env_gauto
 		export LANGUAGE=neither
 	fi
 fi
@@ -255,7 +256,7 @@ if [[ "$LANGUAGE" == "js" ]] && ! check_npm_package "eslint"; then
 	read -p "eslint is not installed and/or initialized. Would you like to install and initialize it? (y/n): " init_eslint
 	if [[ "$init_eslint" =~ ^[Yy]$ ]]; then
 		npx eslint --init && sed -i '' '/export default/a\
-  			{ ignores: ["venv/", ".idea/", ".git/", "node_modules/", ".vscode", ".DS_Store", "config.codekit3", ".gitignore", "dist/", "Thumbs.db", ".eslintcache", ".env", "test/", "tests/", "bs-config.js", "tsconfig.json", "*.mjs", "*.min.js"] },' eslint.config.mjs
+  			{ ignores: ["venv/", ".idea/", ".git/", "node_modules/", ".vscode", ".DS_Store", "config.codekit3", ".gitignore", "dist/", "Thumbs.db", ".eslintcache", ".env_gauto", "test/", "tests/", "bs-config.js", "tsconfig.json", "*.mjs", "*.min.js"] },' eslint.config.mjs
 		echo "eslint has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
@@ -323,8 +324,8 @@ fi
 if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]] && [ -d .git ]; then
 	echo "--------------------------------------------------"
 	read -p "hooks are not initialized. Would you like to install and initialize precommit hooks? (y/n): " init_hooks
-	sed -i '' '/HOOKS_INITIALIZED/d' .env # Remove old entry
-	echo "HOOKS_INITIALIZED=true" >>.env
+	sed -i '' '/HOOKS_INITIALIZED/d' .env_gauto # Remove old entry
+	echo "HOOKS_INITIALIZED=true" >>.env_gauto
 	export HOOKS_INITIALIZED=true
 	if [[ "$init_hooks" =~ ^[Yy]$ ]]; then
 		if [[ "$LANGUAGE" == "python" ]]; then
@@ -417,40 +418,6 @@ if [ -d .git ]; then
 		echo "Updated .gitignore contents:"
 		cat .gitignore
 		echo "--------------------------------------------------"
-	fi
-	# Ask if the user wants to add more entries
-	if [[ "$GITIGNORE_INITIALIZED" == "false" ]]; then
-		while true; do
-			read -p "Would you like to add anything else to .gitignore? (y/n): " add_more
-			sed -i '' '/GITIGNORE_INITIALIZED/d' .env # Remove old entry
-			echo "GITIGNORE_INITIALIZED=true" >>.env
-			export GITIGNORE_INITIALIZED=true
-
-			if [[ "$add_more" =~ ^[Yy]$ ]]; then
-				read -p "Enter the pattern or file/folder to add: " new_entry
-				# Check if the entry is already in .gitignore
-				if ! grep -qx "$new_entry" .gitignore; then
-					echo "$new_entry" >>.gitignore
-					changes_made=true
-					echo "Updated .gitignore contents:"
-					cat .gitignore
-					echo "--------------------------------------------------"
-				else
-					echo "Entry '$new_entry' already exists in .gitignore."
-				fi
-			elif [[ "$add_more" =~ ^[Nn]$ ]]; then
-				if [ "$changes_made" = false ]; then
-					echo "No changes were made to .gitignore."
-				else
-					echo "Final .gitignore contents:"
-					cat .gitignore
-				fi
-				echo "--------------------------------------------------"
-				break
-			else
-				echo "Invalid input, please enter 'y' or 'n'."
-			fi
-		done
 	fi
 fi
 
