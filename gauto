@@ -121,6 +121,7 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 			read -p "would you like to install dotenv? (y/n): " init_dotenv
 			if [[ "$init_dotenv" =~ ^[Yy]$ ]]; then
 				npm i dotenv >/dev/null 2>&1
+				touch .env >/dev/null 2>&1
 				echo "dotenv has been installed."
 				echo "--------------------------------------------------"
 			else
@@ -150,6 +151,13 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 
 						# Use a here-document to avoid issues with escaping in echo
 						cat <<EOL >bs-config.js
+try {
+  require('dotenv').config();
+  console.log("Loaded environment variables from .env file");
+} catch (error) {
+  console.log("dotenv not installed or .env file not found; skipping .env configuration");
+}
+
 const serverPort = process.env.PORT || 3000;
 
 module.exports = {
