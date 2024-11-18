@@ -2,14 +2,14 @@
 
 # Author: Toni Mertanen
 # Created: 14.7.2024
-# Last modified: 13.11.2024
-# Version: 5.1.2
+# Last modified: 18.11.2024
+# Version: 5.2.1
 
 # Description: This script is used to automate the process of initializing npm/typescript/prettier/eslint/
-# ts-node/express/nodemon/browser-sync/dotenv/joi and type libraries for express/node/mocha/chai for JavaScript 
-# project or pylint/mypy/black for Python project and initializing git and creating the .gitignore, linking 
-# the local repo with the remote one, adding and committing the changes with user given message to the the
-# remote repository. If typescript is installed it also adds predev script which run automatically when 
+# ts-node/express/nodemon/browser-sync/dotenv/joi/SQLite3 and type libraries for express/node/mocha/chai for 
+# JavaScript project or pylint/mypy/black for Python project and initializing git and creating the .gitignore, 
+# linking the local repo with the remote one, adding and committing the changes with user given message to the 
+# the remote repository. If typescript is installed it also adds predev script which run automatically when 
 # npm run dev is used. The script will start tsc compiling in watch mode. When npm run dev is used it will 
 # start nodemon and browser syncing. With script it is also possible to automate running of code formatter 
 # and linter before each git commit. Script will run the necessary commands and ask for user input when needed.
@@ -129,6 +129,19 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 				echo "--------------------------------------------------"
 			fi
 		fi
+		# check if sqlite3 is installed
+		if ! check_npm_package "sqlite3"; then
+			read -p "would you like to install dotenv? (y/n): " init_sqlite3
+			if [[ "$init_sqlite3" =~ ^[Yy]$ ]]; then
+				npm i sqlite3 >/dev/null 2>&1
+				touch .env >/dev/null 2>&1
+				echo "sqlite3 has been installed."
+				echo "--------------------------------------------------"
+			else
+				echo "sqlite3 was not installed."
+				echo "--------------------------------------------------"
+			fi
+		fi
 		# check if joi is installed
 		if ! check_npm_package "joi"; then
 			read -p "would you like to install joi? (y/n): " init_joi
@@ -183,7 +196,7 @@ module.exports = {
 EOL
 
 						# Use jq to add the dev script with extra trailing comma
-						jq '.scripts += {"dev": "concurrently \"nodemon --exec ts-node ./src/App.ts\" \"browser-sync ./src/App.ts --config bs-config.js\""
+						jq '.scripts += {"dev": "concurrently \"nodemon\" \"browser-sync start --config bs-config.js\""
 ,}' package.json >tmp.json && mv tmp.json package.json
 						echo "Updated dev script in package.json"
 						echo "browser-sync has been installed."
@@ -287,8 +300,34 @@ if [[ "$LANGUAGE" == "js" ]] && ! check_npm_package "eslint"; then
 	echo "--------------------------------------------------"
 	read -p "eslint is not installed and/or initialized. Would you like to install and initialize it? (y/n): " init_eslint
 	if [[ "$init_eslint" =~ ^[Yy]$ ]]; then
-		npx eslint --init && sed -i '' '/export default/a\
-  			{ ignores: ["venv/", ".idea/", ".git/", "node_modules/", ".vscode", ".DS_Store", "config.codekit3", ".gitignore", "dist/", "Thumbs.db", ".eslintcache", ".env_gauto", "test/", "tests/", "bs-config.js", "tsconfig.json", "*.mjs", "*.min.js"] },' eslint.config.mjs
+		npm init @eslint/config@latest 
+		if [ -f eslint.config.mjs ]; then
+			rm eslint.config.mjs
+		fi
+		cat <<EOL >eslint.config.mjs
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import tseslint from "typescript-eslint";
+
+
+/** @type {import('eslint').Linter.Config[]} */
+export default [
+  {files: ["**/*.{js,mjs,cjs,ts}"]},
+  {languageOptions: { globals: globals.browser }},
+  {rules: {
+    "@typescript-eslint/no-unused-expressions": [
+      "error",
+      {
+        allowShortCircuit: true,
+        allowTernary: true,
+        allowTaggedTemplates: true,
+      },
+    ],
+  }},
+  pluginJs.configs.recommended,
+  ...tseslint.configs.recommended,
+];
+EOL
 		echo "eslint has been installed and initialized."
 		echo "--------------------------------------------------"
 	else
@@ -375,7 +414,7 @@ if [[ "$HOOKS_INITIALIZED" == "false" ]] && [[ "$LANGUAGE" != "neither" ]] && [ 
 		elif [[ "$LANGUAGE" == "js" ]]; then
 			[ ! -f .git/hooks/pre-commit ] && touch .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
 			precommitfile=".git/hooks/pre-commit"
-			for item in "npx prettier --write ./src ./public" "npx eslint ./src ./public --fix"; do
+			for item in "npx prettier --write ./src" "npx eslint ./src --fix"; do
 				# Check if the item is not in the pre-commit file file
 				if ! grep -Fxq "$item" "$precommitfile"; then
 					# If not, append the item to the pre-commit file file
