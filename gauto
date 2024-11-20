@@ -3,16 +3,17 @@
 # Author: Toni Mertanen
 # Created: 14.7.2024
 # Last modified: 20.11.2024
-# Version: 5.3.1
+# Version: 5.4.0
 
 # Description: This script is used to automate the process of initializing npm/typescript/prettier/eslint/
-# ts-node/express/nodemon/browser-sync/dotenv/joi/SQLite3||myQSL and type libraries for express/node/mocha/chai 
-# for JavaScript project or pylint/mypy/black for Python project and initializing git and creating the .gitignore, 
-# linking the local repo with the remote one, adding and committing the changes with user given message to the 
-# the remote repository. If typescript is installed it also adds predev script which run automatically when 
-# npm run dev is used. The script will start tsc compiling in watch mode. When npm run dev is used it will 
-# start nodemon and browser syncing. With script it is also possible to automate running of code formatter 
-# and linter before each git commit. Script will run the necessary commands and ask for user input when needed.
+# ts-node/express/nodemon/browser-sync/dotenv/joi/SQLite3/myQSL/mocha/chai/jest with necessary type 
+# libraries for JavaScript project or pylint/mypy/black for Python project and initializing git and 
+# creating the .gitignore, linking the local repo with the remote one, adding and committing the changes 
+# with user given message to the remote repository. If typescript is installed it also adds predev script
+# which run automatically when npm run dev is used. The script will start tsc compiling in watch mode.
+# When npm run dev is used it will start nodemon and browser syncing. With script it is also possible to
+# automate running of code formatter and linter before each git commit. Script will run the necessary
+# commands and ask for user input when needed.
 
 # Usage: ./gauto - The script will check the state of git/npm/tsc initialization and ask for user input when needed.
 
@@ -109,6 +110,7 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 			read -p "would you like to install express? (y/n): " init_express
 			if [[ "$init_express" =~ ^[Yy]$ ]]; then
 				npm i express >/dev/null 2>&1
+				npm i @types/express >/dev/null 2>&1
 				echo "express has been installed."
 				echo "--------------------------------------------------"
 			else
@@ -121,6 +123,7 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 			read -p "would you like to install dotenv? (y/n): " init_dotenv
 			if [[ "$init_dotenv" =~ ^[Yy]$ ]]; then
 				npm i dotenv >/dev/null 2>&1
+				npm i @types/dotenv >/dev/null 2>&1
 				touch .env >/dev/null 2>&1
 				echo "dotenv has been installed."
 				echo "--------------------------------------------------"
@@ -146,6 +149,42 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 				echo "No relational databases were installed."
 				echo "--------------------------------------------------"
 			fi
+		fi
+		# check if there is neede for any test package installation
+		read -p "would you like to install test packages (y/n): " init_tests
+		if [[ "$init_tests" =~ ^[Yy]$ ]]; then
+			read -p "would you like to install mocha? (y/n): " init_mocha
+			if [[ "$init_mocha" =~ ^[Yy]$ ]]; then
+				npm i mocha --save-dev >/dev/null 2>&1
+				npm i @types/mocha --save-dev >/dev/null 2>&1
+				echo "mocha has been installed."
+				echo "--------------------------------------------------"
+			else
+				echo "mocha was not installed."
+				echo "--------------------------------------------------"
+			read -p "would you like to install chai? (y/n): " init_chai
+			if [[ "$init_chai" =~ ^[Yy]$ ]]; then
+				npm i chai --save-dev >/dev/null 2>&1
+				npm i @types/chai --save-dev >/dev/null 2>&1
+				echo "chai has been installed."
+				echo "--------------------------------------------------"
+			else
+				echo "chai was not installed."
+				echo "--------------------------------------------------"
+			fi
+			read -p "would you like to install jest? (y/n): " init_jest
+			if [[ "$init_jest" =~ ^[Yy]$ ]]; then
+				npm i jest --save-dev >/dev/null 2>&1
+				npm i @types/jest --save-dev >/dev/null 2>&1
+				echo "jest has been installed."
+				echo "--------------------------------------------------"
+			else
+				echo "jest was not installed."
+				echo "--------------------------------------------------"
+			fi
+		else
+			echo "No test packages were installed."
+			echo "--------------------------------------------------"
 		fi
 		# check if joi is installed
 		if ! check_npm_package "joi"; then
@@ -260,8 +299,7 @@ if [ ! -f tsconfig.json ] && [[ "$LANGUAGE" == "js" ]]; then
 		echo "tsconfig.json has been also updated: experimentalDecorators has been set to true."
 		echo "--------------------------------------------------"
 		npm i --save-dev @types/mocha @types/chai >/dev/null 2>&1
-		npm i --save-dev ts-node @types/node @types/express >/dev/null 2>&1
-		echo "Types libraries for mocha chai node and express installed."
+		npm i --save-dev ts-node @types/node >/dev/null 2>&1
 		echo "TS-node for running ts files without compiling installed."
 		echo "--------------------------------------------------"
 	else
