@@ -129,16 +129,21 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 				echo "--------------------------------------------------"
 			fi
 		fi
-		# check if sqlite3 is installed
-		if ! check_npm_package "sqlite3"; then
-			read -p "would you like to install dotenv? (y/n): " init_sqlite3
-			if [[ "$init_sqlite3" =~ ^[Yy]$ ]]; then
+		# check if there is any relational database installed
+		if ! check_npm_package "sqlite3" && ! check_npm_package "mysql"; then
+			read -p "would you like to install relational database sqlite3 or mysql ? (s/m/n - sqlite3/mysql/none): " init_database
+			if [[ "$init_database" =~ ^[Ss]$ ]]; then
 				npm i sqlite3 >/dev/null 2>&1
 				touch .env >/dev/null 2>&1
 				echo "sqlite3 has been installed."
 				echo "--------------------------------------------------"
+			elif [[ "$init_database" =~ ^[Mm]$ ]]; then
+				npm i mysql >/dev/null 2>&1
+				touch .env >/dev/null 2>&1
+				echo "mysql has been installed."
+				echo "--------------------------------------------------"
 			else
-				echo "sqlite3 was not installed."
+				echo "No relational databases were installed."
 				echo "--------------------------------------------------"
 			fi
 		fi
