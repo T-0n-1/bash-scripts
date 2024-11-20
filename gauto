@@ -2,12 +2,12 @@
 
 # Author: Toni Mertanen
 # Created: 14.7.2024
-# Last modified: 18.11.2024
-# Version: 5.2.1
+# Last modified: 20.11.2024
+# Version: 5.3.1
 
 # Description: This script is used to automate the process of initializing npm/typescript/prettier/eslint/
-# ts-node/express/nodemon/browser-sync/dotenv/joi/SQLite3 and type libraries for express/node/mocha/chai for 
-# JavaScript project or pylint/mypy/black for Python project and initializing git and creating the .gitignore, 
+# ts-node/express/nodemon/browser-sync/dotenv/joi/SQLite3||myQSL and type libraries for express/node/mocha/chai 
+# for JavaScript project or pylint/mypy/black for Python project and initializing git and creating the .gitignore, 
 # linking the local repo with the remote one, adding and committing the changes with user given message to the 
 # the remote repository. If typescript is installed it also adds predev script which run automatically when 
 # npm run dev is used. The script will start tsc compiling in watch mode. When npm run dev is used it will 
@@ -134,12 +134,12 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 			read -p "would you like to install relational database sqlite3 or mysql ? (s/m/n - sqlite3/mysql/none): " init_database
 			if [[ "$init_database" =~ ^[Ss]$ ]]; then
 				npm i sqlite3 >/dev/null 2>&1
-				touch .env >/dev/null 2>&1
+				npm i @types/sqlite3 >/dev/null 2>&1
 				echo "sqlite3 has been installed."
 				echo "--------------------------------------------------"
 			elif [[ "$init_database" =~ ^[Mm]$ ]]; then
 				npm i mysql >/dev/null 2>&1
-				touch .env >/dev/null 2>&1
+				npm i @types/mysql >/dev/null 2>&1
 				echo "mysql has been installed."
 				echo "--------------------------------------------------"
 			else
@@ -152,6 +152,7 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 			read -p "would you like to install joi? (y/n): " init_joi
 			if [[ "$init_joi" =~ ^[Yy]$ ]]; then
 				npm i joi >/dev/null 2>&1
+				npm i @types/joi >/dev/null 2>&1
 				echo "joi has been installed."
 				echo "--------------------------------------------------"
 			else
