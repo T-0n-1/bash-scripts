@@ -162,6 +162,7 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 			else
 				echo "mocha was not installed."
 				echo "--------------------------------------------------"
+			fi
 			read -p "would you like to install chai? (y/n): " init_chai
 			if [[ "$init_chai" =~ ^[Yy]$ ]]; then
 				npm i chai --save-dev >/dev/null 2>&1
