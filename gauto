@@ -3,10 +3,10 @@
 # Author: Toni Mertanen
 # Created: 14.7.2024
 # Last modified: 23.11.2024
-# Version: 6.0.0
+# Version: 6.0.1
 
 # Description: This script is used to automate the process of initializing npm/typescript/prettier/eslint/
-# ts-node/express/nodemon/browser-sync/pm2/dotenv/joi/SQLite3/myQSL/mocha/chai/jest with necessary type 
+# ts-node/express/nodemon/browser-sync/pm2/ejs/dotenv/joi/SQLite3/myQSL/mocha/chai/jest with necessary type 
 # libraries for JavaScript project or pylint/mypy/black for Python project and initializing git and 
 # creating the .gitignore, linking the local repo with the remote one, adding and committing the changes 
 # with user given message to the remote repository. If typescript is installed it also adds predev script
@@ -129,6 +129,20 @@ if [ ! -f package.json ] && [[ "$LANGUAGE" == "js" ]]; then
 				echo "--------------------------------------------------"
 			else
 				echo "dotenv was not installed."
+				echo "--------------------------------------------------"
+			fi
+		fi
+		# check if ejs is installed
+		if ! check_npm_package "ejs"; then
+			read -p "would you like to install ejs? (y/n): " init_ejs
+			if [[ "$init_ejs" =~ ^[Yy]$ ]]; then
+				npm i ejs >/dev/null 2>&1
+				npm i @types/ejs >/dev/null 2>&1
+				touch .env >/dev/null 2>&1
+				echo "ejs has been installed."
+				echo "--------------------------------------------------"
+			else
+				echo "ejs was not installed."
 				echo "--------------------------------------------------"
 			fi
 		fi
