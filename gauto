@@ -6,7 +6,7 @@
 # Version: 6.0.1
 
 # Description: This script is used to automate the process of initializing npm/typescript/prettier/eslint/
-# ts-node/express/nodemon/browser-sync/pm2/ejs/dotenv/joi/SQLite3/myQSL/mocha/chai/jest with necessary type 
+# ts-node/express/nodemon/browser-sync/pm2/ejs/dotenv/joi/SQLite3/mySQL/mocha/chai/jest with necessary type 
 # libraries for JavaScript project or pylint/mypy/black for Python project and initializing git and 
 # creating the .gitignore, linking the local repo with the remote one, adding and committing the changes 
 # with user given message to the remote repository. If typescript is installed it also adds predev script
